@@ -30,7 +30,7 @@ indNames(gl)
 #Sort all individuals by population in alphabetical order
 gl <- gl[order(pop(gl)), ]
 
-#Verify the new ordering of individuals and populations
+#Verify the new ordering of individuals
 indNames(gl)
 ```
 
@@ -62,8 +62,6 @@ gla <- gl.drop.ind(gl, ind.list=c("BM_8_4A","BM_38B_3B","BM_45_1B","BM_76A_6A","
 
 #Print details
 gla
-
-save(gla, file="BM_gla.rdata")
 ```
 
 Reports on minor allele frequencies (maf) overall, and by population
@@ -81,8 +79,6 @@ dev.off()
 
 #Print details
 glb
-
-save(glb, file="BM_glb.rdata")
 ```
 
 Report Call Rates/ Missing Data - loci
@@ -107,8 +103,6 @@ dev.off()
 
 #Print details
 glc
-
-save(glc, file="BM_glc.rdata")
 ```
 
 Calculate call rate for each individual
@@ -119,8 +113,6 @@ dev.off()
 
 #Print details
 gld
-
-save(gld, file="BM_gld.rdata")
 ```
 
 Discard loci that might be possible paralogues (hamming distance)
@@ -139,7 +131,7 @@ Compare smear plots between the original and filtered datasets
 ```{r }
 pdf("BM_original_dataset_gl.pdf")
 plot(gl)
-dev.off()
+dev.off() 
 
 pdf("BM_filtered_dataset_gle.pdf")
 plot(gle)
