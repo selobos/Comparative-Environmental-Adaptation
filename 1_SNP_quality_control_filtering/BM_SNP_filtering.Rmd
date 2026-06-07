@@ -1,5 +1,5 @@
 ---
-title: "NP Quality Control Filtering - Banksia marginata"
+title: "SNP Quality Control Filtering - Banksia marginata"
 author: "Simon E. Lobos"
 date: "June, 20267"
 output: html_document
