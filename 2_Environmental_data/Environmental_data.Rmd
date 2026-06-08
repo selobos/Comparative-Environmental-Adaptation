@@ -93,12 +93,12 @@ plot(Env.stack, col=(tim.colors(32)), frame=F, colNA = "black")
 
 Correlation analysis
 ```{r}
-#Correlation analysis was conducted following the method of Sales et al., (2021) https://doi.org/10.1111/geb.13271.
+#Correlation analysis was conducted following the method of Sales et al. (2021) https://doi.org/10.1111/geb.13271.
 
 #Load CSV file of geographic coordinates
 coords <- read.csv("Geo_coord_all_pops_Ch2.csv")
 
-#Extract Values from Raster
+#Extract values from raster
 ext <- extract(x = Env.stack, coords[,c('lon','lat')])
 ext <- data.frame(ext)
 
@@ -124,5 +124,69 @@ Env.stack.2 <- Env.stack[[-c(4,6,7)]]
 plot(Env.stack.2, col=(tim.colors(32)), frame=F, colNA = "black")
 
 save(Env.stack.2, file = "Env.stack.2.RData")
+```
+
+Extract environmental values from raster for each species
+```{r}
+#Load species occurrence data
+BM_coord <- read.csv("BM_coords_Ch2.csv")
+CR_coord <- read.csv("BM_coords_Ch2.csv")
+EI_coord <- read.csv("EI_coords_Ch2.csv")
+EO_coord <- read.csv("EO_coords_Ch2.csv")
+GA_coord <- read.csv("GA_coords_Ch2.csv")
+XA_coord <- read.csv("XA_coords_Ch2.csv")
+
+#Extract values from Raster - Banksia marginata
+BM_Env_ext <- extract(x = Env.stack.2, BM_coord[,c('lon','lat')])
+BM_Env_ext <- data.frame(BM_Env_ext)
+write.csv(BM_Env_ext, file="BM_env_1.csv")
+
+BM_Env_ext <- cbind(BM_coord,BM_Env_ext)
+write.csv(BM_Env_ext, file="BM_env_2.csv")
+
+#Extract values from Raster - Callitris rhomboidea
+CR_Env_ext <- extract(x = Env.stack, CR_coord[,c('lon','lat')])
+CR_Env_ext <- data.frame(CR_Env_ext)
+head(CR_Env_ext)
+write.csv(CR_Env_ext, file="CR_env_1.csv")
+
+CR_Env_ext <- cbind(CR_coord,CR_Env_ext)
+write.csv(CR_Env_ext, file="CR_env_2.csv")
+
+#Extract values from Raster - Epacris impressa
+EI_Env_ext <- extract(x = Env.stack, EI_coord[,c('lon','lat')])
+EI_Env_ext <- data.frame(EI_Env_ext)
+head(EI_Env_ext)
+write.csv(EI_Env_ext, file="EI_env_1.csv")
+
+EI_Env_ext <- cbind(EI_coord,EI_Env_ext)
+write.csv(EI_Env_ext, file="EI_env_2.csv")
+
+#Extract values from Raster - Eucalyptus obliqua
+EO_Env_ext <- extract(x = Env.stack, EO_coord[,c('lon','lat')])
+EO_Env_ext <- data.frame(EO_Env_ext)
+head(EO_Env_ext)
+write.csv(EO_Env_ext, file="EO_env_1.csv")
+
+EO_Env_ext <- cbind(EO_coord,EO_Env_ext) 
+write.csv(EO_Env_ext, file="EO_env_2.csv") 
+
+#Extract values from Raster - Grevillea aquifolium
+GA_Env_ext <- extract(x = Env.stack, GA_coord[,c('lon','lat')])
+GA_Env_ext <- data.frame(GA_Env_ext)
+head(GA_Env_ext)
+write.csv(GA_Env_ext, file="GA_env_1.csv")
+
+GA_Env_ext <- cbind(GA_coord,GA_Env_ext)
+write.csv(GA_Env_ext, file="GA_env_2.csv")
+
+#Extract values from Raster - Xanthorrhoea australis
+XA_Env_ext <- extract(x = Env.stack, XA_coord[,c('lon','lat')])
+XA_Env_ext <- data.frame(XA_Env_ext)
+head(XA_Env_ext)
+write.csv(XA_Env_ext, file="XA_env_1.csv")
+
+XA_Env_ext <- cbind(XA_coord,XA_Env_ext)
+write.csv(XA_Env_ext, file="XA_env_2.csv")
 ```
 
