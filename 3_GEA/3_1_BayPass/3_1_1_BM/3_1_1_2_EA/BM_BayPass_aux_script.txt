@@ -1,0 +1,13 @@
+## In Unix-based HPC:
+## Environmental association
+## Run aux model of baypass for assocaitions using created covairance matrix 
+cd 3_GEA/3_1_BayPass/3_1_1_BA/3_1_1_2_EA
+
+for i in 1 2 3 4 5
+do
+seed=$((1000 + RANDOM % 9999))
+echo "$seed"
+nohup /home/ojhollan/BAM/workingPops/sites/poolFstat/g_baypass -npop 30 -gfile BM_Baypass -seed $seed -efile BM_env_BP.txt -auxmodel -omegafile bm_core.median_mat_omega.out -outprefix bm_aux.$i -scalecov -nval 5000 -burnin 50000 -nthreads 48 &
+done
+
+#In R: Calculate the means for auxiliary runs, and output a CSV file containing only values greater than BF20. Use the BM_Get_median_mat_aux.R script.
