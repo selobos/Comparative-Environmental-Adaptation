@@ -1,0 +1,240 @@
+---
+title: "Gradient Forest - Banksia marginata"
+author: "Simon E. Lobos"
+date: "June, 20267"
+output: html_document
+---
+
+Import packages
+```{r set directory}
+setwd("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM")
+
+library(dplyr)
+library(tibble)
+library(stringr)
+library(gradientForest)
+library(ggplot2)
+```
+
+Prepare input to make population level allele frequencies
+```{r }
+#In an excel spreedsheet combined BayPass (BM_outliers_BF20_gm012.csv) and LFMM2 (BM_outliers_lfmm2.csv) results. Get only unique snps and save it as a txt file in the working directory (BM_outliers_BP_LF_vif.txt).
+
+#read genetic matrix in 012 format
+x = read.table("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/3_1_1_BM/3_1_1_1_Core/BM_012.txt", check.names=FALSE)
+
+uniq_snpss_vif = read.table("BM_outliers_BP_LF_vif.txt")
+
+#remove duplicate detections, if any
+uniq_snpss_vif <- uniq_snpss_vif[!duplicated(uniq_snpss_vif$V1),] #NA
+
+x_t <- data.frame(t(x)); dim(x_t) #2521(snps)   145(ind)
+
+#x_t <- data.frame(x_t, row.names = paste0(1:2521)); dim(x_t) #2521(snps)   145(ind)
+
+sig_df_1 <- x_t[uniq_snpss_vif,]; dim(sig_df_1) #30(snps)   145(ind)
+
+rownames(sig_df_1) <- gsub("/", "_", rownames(sig_df_1))
+rownames(sig_df_1) <- gsub("-", "_", rownames(sig_df_1))
+
+write.csv(sig_df_1, file=paste0("BM_outliers_BF_LF_gm012_vif.csv"))
+
+sig_df_1[1:10,1:10]
+```
+
+Calculate population level allele frequencies
+```{r }
+#Upload Env.vif input with rows and columns names
+Env.vif<-read.csv("~/Desktop/Comparative-Landscape-Genomics/2_Environmental_data/BM_Env_lfmm_2_vif.csv", header=T)
+head(Env.vif)
+
+#get allele frequency for each population 
+library(tidyr)
+
+ban.af.vif <-  apply(t(sig_df_1), 2, function(snp) {
+  split(snp, Env.vif$pop) %>%
+    sapply(function(genos) {
+      n = sum(!is.na(genos)) * 2
+      s = sum(genos, na.rm=T)
+      return (s / n)
+    })
+})
+
+#check if there are any NAs and convert the NAs to 0
+which(apply(ban.af.vif, 2, function(x) any(is.na(x)))) 
+#36107330-57-C.T 
+#             27 
+ban.af.vif <- ban.af.vif[ , colSums(is.na(ban.af.vif)) == 0]
+
+write.csv(ban.af.vif, file="ban.af.vif.csv")
+```
+
+Run Gradient Forest
+```{r }
+###Environmental file aggregate
+agg_Env.vif <- aggregate(. ~ pop, data = Env.vif[,-1], FUN = mean)
+all_names <- colnames(Env.vif)
+sel_bio <- all_names[5:8] 
+
+EnvGF.ban.vif <- agg_Env.vif[,sel_bio]
+
+maxLevel <- log2(0.368*nrow(EnvGF.ban.vif)/2) #account for correlations, see ?gradientForest 
+
+colnames(ban.af.vif) <- paste0("V", colnames(ban.af.vif))
+
+ban.BP.lfmm.GF.vif <- gradientForest(cbind(EnvGF.ban.vif, #Environmental variables
+                                ban.af.vif), #allele freq arranged by site from Env.vif
+                          predictor.vars=colnames(EnvGF.ban.vif),
+                          response.vars=colnames(ban.af.vif), 
+                          ntree=500, maxLevel=maxLevel, 
+                          trace=T, corr.threshold=0.50)
+
+#..Warning in randomForest.default(x = X, y = spec_vec, maxLevel = maxLevel,  :
+#  The response has five or fewer unique values.  Are you sure you want to do regression?
+
+summary(ban.BP.lfmm.GF.vif)
+#                Length Class      Mode     
+#X                4     data.frame list     
+#Y               29     data.frame list     
+#result          17     -none-     numeric  
+#overall.imp      4     -none-     numeric  
+#overall.imp2     4     -none-     numeric  
+#ntree            1     -none-     numeric  
+#imp.rsq         68     -none-     numeric  
+#species.pos.rsq  1     -none-     numeric  
+#ranForest.type   1     -none-     character
+#res              9     data.frame list     
+#res.u            6     data.frame list     
+#dens             4     -none-     list     
+#call             8     -none-     call  
+```
+
+R square (min,max,mean)
+```{r }
+sqar <- ban.BP.lfmm.GF.vif$imp.rsq
+sqar[sqar == 0] <- NA
+sqar[1:4,1:17]
+
+max(sqar,na.rm = T)
+#0.1530844
+
+min(sqar,na.rm = T)
+#0.0002252271
+
+mean(sqar,na.rm = T)
+#0.03823216
+
+#Get R2 variable importance (per Env.vif var)
+bm.R2.imp.vif <- as.data.frame(ban.BP.lfmm.GF.vif$imp.rsq)
+write.table(bm.R2.imp.vif, file="bm.R2.imp.vif.txt", sep="\t", quote = FALSE)
+
+#Get R2 per allele
+bm.R2perspp.vif <- as.data.frame(ban.BP.lfmm.GF.vif$result)
+write.table(bm.R2perspp.vif, file="bm.R2perspp.vif.txt", sep="\t", quote = FALSE)
+
+## Here need to extract importance numbers to plot separately (as heatmap):
+bm.cand.imp.vif <- as.data.frame(ban.BP.lfmm.GF.vif$overall.imp)
+bm.cand.r2.vif<- as.data.frame(ban.BP.lfmm.GF.vif$overall.imp2)
+```
+
+Overall Importance of Environmental Variables plot
+```{r }
+png("BM_overall_importance_BP_lfmm_vif.png", width=1500, height=1200, res=200)
+o <- plot(ban.BP.lfmm.GF.vif, plot.type = "O")
+dev.off()
+
+most_important.vif <- names(importance(ban.BP.lfmm.GF.vif))
+
+#Overallimportance in ggplot2 
+importance(ban.BP.lfmm.GF.vif)
+
+#       AVP      BIO05        TWI        pHc 
+#0.04027141 0.02454346 0.02089013 0.01774672 
+
+ban.BP.lfmm.GF.vif2=c(0.04027141, 0.02454346, 0.02089013, 0.01774672)
+names(ban.BP.lfmm.GF.vif2)=c("AVP","BIO05","TWI","pHc")
+i = data.frame(ban.BP.lfmm.GF.vif2)
+i$var = factor(rownames(i))
+i$type = 'BioClim'
+i$type[grep('pHc',i$var)] = 'Soil'
+i$type[grep('AVP',i$var)] = 'Soil'
+i$type[grep('TWI',i$var)] = 'Hydrology'
+i$var = factor(i$var,levels=i$var[order(i[,1])])
+
+png(file='BM_overall_importance_ggplot_BP_lfmm_vif.png', width=1500, height=1200, res=200)
+ggplot(i,aes(x=var,y=i[,1],fill = type)) +
+  coord_flip() + xlab('Climatic variable') + ylab('Proportion of variance explained') +
+  scale_fill_manual(values=c("#CC79A7","#7DCCFF","#43BA8F")) +
+  theme(legend.position='none',axis.title = element_text(size=16),axis.text= element_text(size=14) ) +
+  geom_bar(stat='identity')
+dev.off()
+```
+
+Split importance plot
+```{r }
+png("BM_splits_density_plot_BP_lfmm_vif.png", width=1500, height=1200, res=200)
+s <- plot(ban.BP.lfmm.GF.vif, plot.type = "S", imp.vars = most_important.vif,
+leg.posn = "topright", cex.legend = 0.4, cex.axis = 0.6,
+cex.lab = 0.7, line.ylab = 0.9, par.args = list(mgp = c(1.5,
+0.5, 0), mar = c(3.1, 1.5, 0.1, 1)))
+dev.off()
+
+#Warning in density.default(splits, weight = w/sum(w), from = rX[1], to = rX[2]) :
+#  Selecting bandwidth *not* using 'weights'
+```
+
+Species Cumulative importance plot
+```{r }
+png("BM_species_cumulative_plot_BP_lfmm_vif.png", width=1500, height=1200, res=200)
+c <- plot(ban.BP.lfmm.GF.vif, plot.type = "C", imp.vars = most_important.vif,common.scale=T,
+show.overall = F, legend = T, leg.posn = "topleft",
+leg.nspecies = 5, cex.lab = 0.7, cex.legend = 0.4,
+cex.axis = 0.6, line.ylab = 0.9, par.args = list(mgp = c(1.5,
+0.5, 0), mar = c(2.5, 1, 0.1, 0.5), omi = c(0,
+0.3, 0, 0)))
+dev.off()
+```
+
+Predictor Cumulative importance plot
+```{r }
+png("BM_predictor_cumulative_plot_BP_lfmm_vif.png", width=1500, height=1200, res=200)
+plot(ban.BP.lfmm.GF.vif, plot.type = "C", imp.vars = most_important.vif,
+show.species = F, common.scale = T, cex.axis = 0.6,
+cex.lab = 0.7, line.ylab = 0.9, par.args = list(mgp = c(1.5,
+0.5, 0), mar = c(2.5, 1, 0.1, 0.5), omi = c(0,
+0.3, 0, 0)))
+dev.off()
+
+##Predictor cumulative plot - ggplot
+preds.vif <- names(ban.BP.lfmm.GF.vif$overall.imp)
+cand.preds.vif.list <- list()
+for(i in preds.vif){
+  CU <- cumimp(ban.BP.lfmm.GF.vif, i)
+  cand.preds.vif.list[[i]] <- data.frame(x = CU$x,
+                                     y = CU$y,
+                                     pred = i,
+                                     snps = "bm.cand.vif")
+}
+bm.cand.preds.vif.df <- do.call(rbind, cand.preds.vif.list)
+save(bm.cand.preds.vif.df, file = "bm.cand.preds.df.vif.RData")# Save object to combine cumulative importance for each spp and plot them, then go to next script: "Combined_GF_BP_LF.Rmd".
+#cand.preds.vif.df$type <- "mean"
+
+png("BM_predictor_cumulative_ggplot_BP_lfmm_vif.png", width=1500, height=1200, res=200)
+ggplot() +
+  geom_step(data=bm.cand.preds.vif.df, aes(x=x,y=y), linewidth = 0.5) +
+  facet_wrap(~pred, scale=c("free")) +
+  ylab("Cumulative Importance")+
+  theme_light() 
+dev.off()
+```
+
+Species performance rank plot
+```{r }
+png("BM_species_performance_rank_BP_lfmm_vif.png", width=1500, height=1200, res=200)
+p <- plot(ban.BP.lfmm.GF.vif, plot.type = "P", show.names = F, horizontal = F,
+cex.axis = 1, cex.labels = 0.7, line = 2.5)
+dev.off()
+
+save(ban.BP.lfmm.GF.vif, file = "BM_GF_BP_LF_VIF.RData")
+```
+
