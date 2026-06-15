@@ -2446,4 +2446,47 @@ tmap_save(rastProc.spp, filename = "Procrustes_map_spp_2_scaled.pdf")
 #tmap_save(rastProc.spp, filename = "Procrustes_map_spp_2.pdf")
 ```
 
+Inferring similarities in genetic variation patterns between species (Figure 5)
+```{r}
+Final_scatter_VIF <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/Combined/Final_order_GO_R2_VIF.csv")
+
+###Linear regression----
+R2_PR.lm <- lm(R2 ~ PR, data = Final_scatter_VIF)
+summary(R2_PR.lm)
+
+#Call:
+#lm(formula = R2 ~ PR, data = Final_scatter_VIF)
+
+#Residuals:
+#     Min       1Q   Median       3Q      Max 
+#-0.49155 -0.38817 -0.04331  0.24366  0.76957 
+
+#Coefficients:
+#            Estimate Std. Error t value Pr(>|t|)    
+#(Intercept)   1.0572     0.2762   3.828 0.002094 ** 
+#PR          -31.6386     7.4086  -4.270 0.000912 ***
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#Residual standard error: 0.4279 on 13 degrees of freedom
+#Multiple R-squared:  0.5838,	Adjusted R-squared:  0.5518 
+#F-statistic: 18.24 on 1 and 13 DF,  p-value: 0.0009118
+
+ggplot(Final_scatter_VIF, aes(x = PR, y = R2)) +
+  geom_point(size = 3, shape = 21, colour = "black", fill = "#b4b4b4") +
+  geom_smooth(method = "lm", color = "#008c97", fill = "#d7d7d7") +
+  stat_poly_eq(
+    aes(label = paste(..eq.label.., ..rr.label.., sep = "*`,`~~")), formula = y ~ x,
+    parse = TRUE, label.x.npc = "right", vstep = 0.05, size = 5) +
+  geom_label_repel(aes(label = spp_vs_spp), color = "black",fontface = "bold",
+    na.rm = TRUE, show.legend = FALSE,max.overlaps = Inf) +
+  xlab(expression("Difference in predicted adaptive structure in space")) +
+  ylab(expression(paste("Pairwise relative importance (", italic(R^2), ") of environmental predictors"))) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    axis.text = element_text(colour = "black", size = 15),
+    axis.title = element_text(colour = "black", size = 15))
+
+ggsave("R2_PR.lm.pdf", width = 5, height = 5, dpi = 300)
+```
 
