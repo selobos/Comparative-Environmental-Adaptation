@@ -6,10 +6,11 @@ output: html_document
 ---
 
 ```{r include = TRUE, message=FALSE, eval = FALSE} 
-#Code adapted from: Luqman et al. (2023). https://doi.org/10.1038/s41467-023-36631-9
+#Code adapted from: van Rensburg et al. (2018). https://doi.org/10.1101/427872
+#                   Luqman et al. (2023). https://doi.org/10.1038/s41467-023-36631-9
 #                   Gallegos et al. (2023). https://doi.org/10.1111/mec.16848
 
-setwd("~/Desktop/Comparative-Landscape-Genomics/4_Outputs")
+setwd("~/Desktop/Comparative-Landscape-Genomics/4_Outputs") 
 
 library(gradientForest)
 library(dplyr)
@@ -34,62 +35,61 @@ library(ggrepel)
 
 Outcomes of gradient forest models (Figure 2A)
 ```{r }
-#Create a relative importance heatmap for each environmental predictor variable, showing its contribution to explaining turnover in allele frequencies based on the Gradient Forest models for each species.
+#Create a relative importance heatmap for each environmental predictor variable for each species.
 
-#Load gradientForest results for all species
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM/BM_GF_BP_LF_VIF.RData") #B. marginata
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_CR/CR_GF_BP_LF_VIF.RData") #C. rhomboidea
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EI/EI_GF_BP_LF_VIF.RData") #E. impressa
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EO/EO_GF_BP_LF_VIF.RData") #E. obliqua
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_GA/GA_GF_BP_LF_VIF.RData") #G. aquifolium
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_XA/XA_GF_BP_LF_VIF.RData") #X. australis
+#Load gradientForest results
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM/BM_GF_BP_LF.RData") #B. marginata
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_CR/CR_GF_BP_LF.RData") #C. rhomboidea  
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EI/EI_GF_BP_LF.RData") #E. impressa
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EO/EO_GF_BP_LF.RData") #E. obliqua
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_GA/GA_GF_BP_LF.RData") #G. aquifolium
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_XA/XA_GF_BP_LF.RData") #X. australis
 
-##????????
-#Retrieve results from the individual outputs for the three GF models: 
-##????????
+#Retrieve R2 importance values of the evn. predictors 
+R.sq.alldatasets <- (rowMeans(ban.BP.lfmm.GF$imp.rsq, na.rm=T)) 
+R.sq.alldatasets <- as.data.frame(R.sq.alldatasets)
+R.sq.alldatasets
+colnames(R.sq.alldatasets) <- "BM"
 
-R.sq.alldatasets.vif <- (rowMeans(ban.BP.lfmm.GF.vif$imp.rsq, na.rm=T))  ##get the mean across all loci
-R.sq.alldatasets.vif <- as.data.frame(R.sq.alldatasets.vif)
-R.sq.alldatasets.vif
-colnames(R.sq.alldatasets.vif) <- "BM.vif"
+R.sq.CR <- (rowMeans(cal.BP.lfmm.GF$imp.rsq, na.rm=T))
+R.sq.CR <- as.data.frame(R.sq.CR)
+R.sq.CR
+R.sq.alldatasets$CR <- R.sq.CR$R.sq.CR
 
-R.sq.CR.vif <- (rowMeans(cal.BP.lfmm.GF.vif$imp.rsq, na.rm=T))
-R.sq.CR.vif <- as.data.frame(R.sq.CR.vif)
-R.sq.CR.vif
-R.sq.alldatasets.vif$CR.vif <- R.sq.CR.vif$R.sq.CR.vif
+R.sq.EI <- (rowMeans(epa.BP.lfmm.GF$imp.rsq, na.rm=T))
+R.sq.EI <- as.data.frame(R.sq.EI)
+R.sq.alldatasets$EI <- R.sq.EI$R.sq.EI
 
-R.sq.EI.vif <- (rowMeans(epa.BP.lfmm.GF.vif$imp.rsq, na.rm=T))
-R.sq.EI.vif <- as.data.frame(R.sq.EI.vif)
-R.sq.alldatasets.vif$EI.vif <- R.sq.EI.vif$R.sq.EI.vif
+R.sq.EO <- (rowMeans(euc.BP.lfmm.GF$imp.rsq, na.rm=T))
+R.sq.EO <- as.data.frame(R.sq.EO)
+R.sq.alldatasets$EO <- R.sq.EO$R.sq.EO
 
-R.sq.EO.vif <- (rowMeans(euc.BP.lfmm.GF.vif$imp.rsq, na.rm=T))
-R.sq.EO.vif <- as.data.frame(R.sq.EO.vif)
-R.sq.alldatasets.vif$EO.vif <- R.sq.EO.vif$R.sq.EO.vif
+R.sq.GA <- (rowMeans(gre.BP.lfmm.GF$imp.rsq, na.rm=T))
+R.sq.GA <- as.data.frame(R.sq.GA)
+R.sq.alldatasets$GA <- R.sq.GA$R.sq.GA
 
-R.sq.GA.vif <- (rowMeans(gre.BP.lfmm.GF.vif$imp.rsq, na.rm=T))
-R.sq.GA.vif <- as.data.frame(R.sq.GA.vif)
-R.sq.alldatasets.vif$GA.vif <- R.sq.GA.vif$R.sq.GA.vif
+R.sq.XA <- (rowMeans(xan.BP.lfmm.GF$imp.rsq, na.rm=T))
+R.sq.XA <- as.data.frame(R.sq.XA)
+R.sq.alldatasets$XA <- R.sq.XA$R.sq.XA
 
-R.sq.XA.vif <- (rowMeans(xan.BP.lfmm.GF.vif$imp.rsq, na.rm=T))
-R.sq.XA.vif <- as.data.frame(R.sq.XA.vif)
-R.sq.alldatasets.vif$XA.vif <- R.sq.XA.vif$R.sq.XA.vif
+R.sq.alldatasets <- as.matrix(R.sq.alldatasets) %>% round(digits = 3) #turn into matrix for heatmap
 
-R.sq.alldatasets.vif <- as.matrix(R.sq.alldatasets.vif) %>% round(digits = 3) ##turn into matrix for heatmap
-
-#Change column names and rownames
+#Change column names 
 heatmap.col.names <- c("BA","CA","EP","EU","GR","XA")
 
-colnames(R.sq.alldatasets.vif) <- heatmap.col.names
+colnames(R.sq.alldatasets) <- heatmap.col.names
 
-R.sq.all.melt.vif <- melt(R.sq.alldatasets.vif)  ##melt for ggplot heatmap
-R.sq.all.melt.vif <- R.sq.all.melt.vif[order(R.sq.all.melt.vif$Var1),]##order by predictor variable
-write.csv(R.sq.all.melt.vif, file="Heatmap.R.sq.all.melt.spp.vif.csv")
+R.sq.all.melt <- melt(R.sq.alldatasets)  #melt for ggplot heatmap
+R.sq.all.melt <- R.sq.all.melt[order(R.sq.all.melt$Var1),] #order by predictor variable
+write.csv(R.sq.all.melt, file="Heatmap.R.sq.all.melt.spp.csv")
 
-R.sq.all.melt.vif <- read.csv("Heatmap.R.sq.all.melt.spp.vif.csv")
-
+#Set colour pallete
 pal7 <- colorRampPalette(brewer.pal(9,"Blues"))(100)
 
-ggplot(R.sq.all.melt.vif, aes(x=Var2, y=fct_inorder(Var1), fill=value)) + 
+#Plot
+pal7 <- colorRampPalette(brewer.pal(9,"Blues"))(100)
+
+ggplot(R.sq.all.melt, aes(x=Var2, y=fct_inorder(Var1), fill=value)) + 
   coord_equal() +
   ylab('Environmental variables') + 
   xlab('Species') +
@@ -112,44 +112,44 @@ ggplot(R.sq.all.melt.vif, aes(x=Var2, y=fct_inorder(Var1), fill=value)) +
                                barheight = 1.5,
                                ticks.colour = "grey30")) 
 
-ggsave("Heatmap.GF.R2.spp_Rvalues.vif.pdf", width = 6.5, height = 6.5, dpi = 300)
+ggsave("Heatmap.GF.R2.spp_Rvalues.pdf", width = 6.5, height = 6.5, dpi = 300)
 ```
 
 Outcomes of gradient forest models (Figure 2B)
 ```{r }
 #load GF cumulative importance dfs of each species 
-ban.cand.preds.vif <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM/bm.cand.preds.df.vif.RData") 
-cal.cand.preds.vif <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_CR/cr.cand.preds.df.vif.RData") 
-epa.cand.preds.vif <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EI/ei.cand.preds.df.vif.RData") 
-euc.cand.preds.vif <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EO/eo.cand.preds.df.vif.RData") 
-gre.cand.preds.vif <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_GA/ga.cand.preds.df.vif.RData") 
-xan.cand.preds.vif <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_XA/xa.cand.preds.df.vif.RData") 
+ban.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM/bm.cand.preds.df.RData") 
+cal.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_CR/cr.cand.preds.df.RData") 
+epa.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EI/ei.cand.preds.df.RData") 
+euc.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EO/eo.cand.preds.df.RData") 
+gre.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_GA/ga.cand.preds.df.RData") 
+xan.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_XA/xa.cand.preds.df.RData") 
 
-all.cand.preds.vif <- rbind(bm.cand.preds.vif.df, cr.cand.preds.vif.df, ei.cand.preds.vif.df, 
-                            eo.cand.preds.vif.df, ga.cand.preds.vif.df, xa.cand.preds.vif.df) %>%
+all.cand.preds <- rbind(bm.cand.preds.df, cr.cand.preds.df, ei.cand.preds.df, 
+                        eo.cand.preds.df, ga.cand.preds.df, xa.cand.preds.df) %>%
   mutate(x = as.numeric(x))
 
-y.max <- max(all.cand.preds.vif$y)
+y.max <- max(all.cand.preds$y)
 
 coluors <- c("#CC79A7","#43BA8F","#7DCCFF",
              "#F09163","#97CE2F","#B7B7B7")
 
-all.cand.preds.vif$pred <- factor(all.cand.preds.vif$pred, levels = c("TWI", "AVP", "pHc","BIO05"))
+all.cand.preds$pred <- factor(all.cand.preds$pred, levels = c("TWI", "AVP", "pHc","BIO05"))
 
 colnames <- c(TWI = "TWI",
               AVP = "SAP (mg/kg)",
               pHc = "SpH",
               BIO05 = "TMAX (°C)")
 
-all.cand.preds.vif %>%
+all.cand.preds %>%
   ggplot() +
   geom_step(aes(x=x,y=y,color=snps, linetype = snps), size = 1) +
   scale_color_manual(values = coluors) +
   facet_wrap(~ pred, scales = "free_x", labeller = as_labeller(colnames)) + 
   scale_linetype_manual(name = "snps", 
-                        values = c(bm.cand.vif = "solid", cr.cand.vif = "solid", 
-                                   ei.cand.vif = "solid", eo.cand.vif = "solid", 
-                                   ga.cand.vif = "solid", xa.cand.vif = "solid")) +
+                        values = c(bm.cand = "solid", cr.cand = "solid", 
+                                   ei.cand = "solid", eo.cand = "solid", 
+                                   ga.cand = "solid", xa.cand = "solid")) +
   ylab("Cumulative Importance") +
   xlab("Predictor value") +
   ylim(c(0,y.max))+
@@ -164,138 +164,73 @@ all.cand.preds.vif %>%
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank())   
 
-save.image(file="GF_CI_spp_v4.vif.RData")
+save.image(file="GF_CI_spp.RData")
 
-ggsave("GF_CI_spp_v4.vif.pdf", width = 8, height = 7, dpi = 300)
-ggsave("GF_CI_spp_v4.vif.svg", width = 8 , height = 7, bg = "white")  
+ggsave("GF_CI_spp.pdf", width = 8, height = 7, dpi = 300)
 ```
 
 Mapping putative adaptive variation across geographic space (Figure 3)
 ```{r }
-
-#Load raster stack to generate prediction
-
-#Seven correlated environmental predictors -----
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/Map/Env.stack.2.RData")
-
-#First check names of raster stack
-names(Env.stack.2) #Raster names are not the same as f12_BP_Lf, lets change it!
-#"TWI"   "AVP"   "pHc"   "BIO01" "BIO05" "BIO12" "BIO14"
-
-#Plot raster layers
-plot(Env.stack.2)
+#Load env. raster stack
+load("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/Env.stack.2.RData")
 
 Env.stack.2.grid <- data.frame(TWI = values(Env.stack.2[["TWI"]]), 
-                       AVP = values(Env.stack.2[["AVP"]]), 
-                       pHc = values(Env.stack.2[["pHc"]]), 
-                       BIO01 = values(Env.stack.2[["BIO01"]]),
-                       BIO05 = values(Env.stack.2[["BIO05"]]),
-                       BIO12 = values(Env.stack.2[["BIO12"]]),
-                       BIO14 = values(Env.stack.2[["BIO14"]]))
-
-plot(Env.stack.2[[1]], colNA = "black")
-
-#Four non-correlated environmental predictors-----
-
-#Exclude BIO01, BIO12 and BIO14
-Env.stack.3 <- subset(Env.stack.2,c("TWI", "AVP", "pHc", "BIO05"))
-
-#Check names
-names(Env.stack.3)
-#"TWI"   "AVP"   "pHc"   "BIO05"
-
-#Plot raster layers
-plot(Env.stack.3)
-
-#save non correlated predictors
-save(Env.stack.3, file="/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/Map/Env.stack.3.RData")
-
-Env.stack.3.grid <- data.frame(TWI = values(Env.stack.3[["TWI"]]), 
-                               AVP = values(Env.stack.3[["AVP"]]), 
-                               pHc = values(Env.stack.3[["pHc"]]), 
-                               BIO05 = values(Env.stack.3[["BIO05"]]))
-
-plot(Env.stack.3[[1]], colNA = "black")
+                               AVP = values(Env.stack.2[["AVP"]]), 
+                               pHc = values(Env.stack.2[["pHc"]]), 
+                               BIO05 = values(Env.stack.2[["BIO05"]]))
 ```
 
-```{r Banksia - PCA}
-#load GF object (ban.BP.lfmm.GF.vif) 
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/BM/vif/BM_GF_BP_LF_VIF.RData") 
+Project gradient forest model in space
+```{r Banksia marginata}
+#Transform gradient forest predictions
+ban.vars <- names(importance(ban.BP.lfmm.GF))
+BM.grid.pre <- predict(ban.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), ban.vars])
 
-#PCA of the transformed grid for plotting in RGB palette}
+#PCA
+BM.PCA <- prcomp(na.omit(BM.grid.pre), center=TRUE, scale.=FALSE)
+save(BM.PCA, file="BM.PCA.RData")
+BM.pcs.full.gf <- BM.PCA 
+summary(BM.PCA)
 
-#The multi-dimensional biological space can most effectively be represented by taking the principle components of the transformed grid and presenting the first two dimensions in a biplot.
+#Assign PC
+BM.a1 <- BM.PCA$x[, 1]
+BM.a2 <- BM.PCA$x[, 2]
+BM.a3 <- BM.PCA$x[, 3]
 
-# To allow straightforward Procrustes superpositioning and generation of ensemble model, I only calculate the first 8 PCs here. This is perfectly fine because I anyway only visualise the first 3 PCs. 
-#Reference: https://github.com/hirzi/RhEA/blob/main/Gradient%20forest%20and%20glacial%20genomic%20offset/GradientForest_GlacialGenomicOffset.R#L361
+#Define RGB colour palette (your choice)
+BM.r <- BM.a1 + BM.a2
+BM.g <- -BM.a2
+BM.b <- BM.a3 + BM.a2 - BM.a1
+#Scale colors
+BM.r <- (BM.r - min(BM.r))/(max(BM.r) - min(BM.r)) * 255
+BM.g <- (BM.g - min(BM.g))/(max(BM.g) - min(BM.g)) * 255
+BM.b <- (BM.b - min(BM.b))/(max(BM.b) - min(BM.b)) * 255
 
-# Transform variables by predicting with GF model
-ban.vars.vif <- names(importance(ban.BP.lfmm.GF.vif))
-BM.grid.pre.vif <- predict(ban.BP.lfmm.GF.vif, Env.stack.3.grid[complete.cases(Env.stack.3.grid), ban.vars.vif]) # need to get rid of NA rows or an error pops up
-
-# BM.PCA.vif of the transformed grid for plotting in RGB palette
-BM.PCA.vif <- prcomp(na.omit(BM.grid.pre.vif), center=TRUE, scale.=FALSE)
-save(BM.PCA.vif, file="BM.PCA.vif.RData")
-BM.pcs.vif.full.gf.vif <- BM.PCA.vif # Output for ensemble model generation
-#Standard deviations (1, .., p=4):
-#  [1] 0.013427469 0.007274120 0.005554043 0.003607013
-
-#Rotation (n x k) = (4 x 4):
-#             PC1       PC2        PC3         PC4
-#AVP    0.8824557 0.4335288 -0.1309682  0.12716902
-#BIO05 -0.3399763 0.5288816  0.1917159  0.75362149
-#TWI   -0.2227014 0.1514399 -0.9623002  0.03805788
-#pHc   -0.2368376 0.7137247  0.1416711 -0.64376571
-
-summary(BM.PCA.vif)
-#Importance of components:
-#                           PC1      PC2      PC3      PC4
-#Standard deviation     0.01343 0.007274 0.005554 0.003607
-#Proportion of Variance 0.65073 0.190970 0.111340 0.046960
-#Cumulative Proportion  0.65073 0.841710 0.953040 1.000000
-
-BM.a1.vif <- BM.PCA.vif$x[, 1]
-BM.a2.vif <- BM.PCA.vif$x[, 2]
-BM.a3.vif <- BM.PCA.vif$x[, 3]
-BM.r.vif <- BM.a1.vif + BM.a2.vif
-BM.g.vif <- -BM.a2.vif
-BM.b.vif <- BM.a3.vif + BM.a2.vif - BM.a1.vif
-# Scale colors
-BM.r.vif <- (BM.r.vif - min(BM.r.vif))/(max(BM.r.vif) - min(BM.r.vif)) * 255
-BM.g.vif <- (BM.g.vif - min(BM.g.vif))/(max(BM.g.vif) - min(BM.g.vif)) * 255
-BM.b.vif <- (BM.b.vif - min(BM.b.vif))/(max(BM.b.vif) - min(BM.b.vif)) * 255
-
-# Plot predicted genetic turnover in genetic space (BM.PCA.vif biplot)
-BM.nvs.vif <- dim(BM.PCA.vif$rotation)[1]
-BM.vec.vif <- ban.vars.vif
-BM.lv.vif <- length(BM.vec.vif)
-BM.vind.vif <- rownames(BM.PCA.vif$rotation) %in% BM.vec.vif
+BM.nvs <- dim(BM.PCA$rotation)[1]
+BM.vec <- ban.vars
+BM.lv <- length(BM.vec)
+BM.vind <- rownames(BM.PCA$rotation) %in% BM.vec
 scal <- 20
-BM.xrng.vif <- range(BM.PCA.vif$x[, 1], BM.PCA.vif$rotation[, 1]/scal) * 1.1
-BM.yrng.vif <- range(BM.PCA.vif$x[, 2], BM.PCA.vif$rotation[, 2]/scal) * 1.1
-BM.trns_site.vif <- predict(ban.BP.lfmm.GF.vif)
-BM.PCA.vif.sites <- predict(BM.PCA.vif, BM.trns_site.vif[, ban.vars.vif])
+BM.xrng <- range(BM.PCA.vif$x[, 1], BM.PCA.vif$rotation[, 1]/scal) * 1.1
+BM.yrng <- range(BM.PCA.vif$x[, 2], BM.PCA.vif$rotation[, 2]/scal) * 1.1
+BM.trns_site <- predict(ban.BP.lfmm.GF.vif)
+BM.PCA.sites <- predict(BM.PCA.vif, BM.trns_site[, ban.vars])
 jit <- 0.001
 
-#write.csv(BM.PCA.vif.sites, file="BM.PCA.vif.sites.csv")
-BM.PCA.vif.sites_names <- read.csv("BM.PCA.vif.sites.csv") 
+write.csv(BM.PCA.sites, file="BM.PCA.sites.csv")
+BM.PCA.sites_names <- read.csv("BM.PCA.sites.csv") # This dataset is the same as "BM.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-#tiff("BM_Biplot_biological_space_GF_BP_LF_2_labels_vif.tiff", width=1500, height=1300, res=300)
-#tiff("BM_Biplot_biological_space_GF_BP_LF_2_vec_vif.tiff", width=1500, height=1300, res=300)
-tiff("BM_Biplot_biological_space_GF_BP_LF_2_vif.tiff", width=1500, height=1300, res=300)
+tiff("BM_Biplot_biological_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
-plot((BM.PCA.vif$x[, 1:2]), xlim = BM.xrng.vif, ylim = BM.yrng.vif, xlab = "PC1 (65%)", ylab = "PC2 (19%)", 
-     pch = ".", cex = 4, col = rgb(BM.r.vif, BM.g.vif, BM.b.vif, max = 255), 
+plot((BM.PCA$x[, 1:2]), xlim = BM.xrng, ylim = BM.yrng, xlab = "PC1 (65%)", ylab = "PC2 (19%)", 
+     pch = ".", cex = 4, col = rgb(BM.r, BM.g, BM.b, max = 255), 
      asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
 #rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
 #par(new = TRUE)
-#plot((BM.PCA.vif$x[, 1:2]), xlim = BM.xrng.vif, ylim = BM.yrng.vif, xlab = "PC1 (65%)", ylab = "PC2 (19%)", 
-#     pch = ".", cex = 4, col = rgb(BM.r, BM.g, BM.b, max = 255), 
-#     asp = 1, cex.lab = 2, cex.axis = 1)
 #abline(h = 0, v = 0, col = "grey70", lwd = 1)
 #axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
 #axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
-points(BM.PCA.vif.sites_names[, 3:4],  pch = c(25,
+points(BM.PCA.sites_names[, 3:4],  pch = c(25,
                                            24,
                                            22,
                                            24,
@@ -327,72 +262,73 @@ points(BM.PCA.vif.sites_names[, 3:4],  pch = c(25,
                                            22), lwd = 0.7, cex = 1, 
        bg = NA, 
        col = "black")
-text(BM.PCA.vif$rotation[BM.vec.vif, 1]/scal + jit * sign(BM.PCA.vif$rotation[BM.vec.vif, 1]), 
-     BM.PCA.vif$rotation[BM.vec.vif, 2]/scal + jit * sign(BM.PCA.vif$rotation[BM.vec.vif, 2]), 
+text(BM.PCA$rotation[BM.vec, 1]/scal + jit * sign(BM.PCA$rotation[BM.vec, 1]), 
+     BM.PCA$rotation[BM.vec, 2]/scal + jit * sign(BM.PCA$rotation[BM.vec, 2]), 
      labels = NULL,  cex = 0.5, pos = 2)
-arrows(rep(0, BM.lv.vif), rep(0, BM.lv.vif), 
-       BM.PCA.vif$rotation[BM.vec.vif, 1]/scal, 
-       BM.PCA.vif$rotation[BM.vec.vif, 2]/scal, 
+arrows(rep(0, BM.lv), rep(0, BM.lv), 
+       BM.PCA$rotation[BM.vec, 1]/scal, 
+       BM.PCA$rotation[BM.vec, 2]/scal, 
        length = 0.1, lwd = 3.5, angle = 20, 
        col = "black")
-arrows(rep(0, BM.lv.vif), rep(0, BM.lv.vif), 
-       BM.PCA.vif$rotation[BM.vec.vif, 1]/scal, 
-       BM.PCA.vif$rotation[BM.vec.vif, 2]/scal, 
+arrows(rep(0, BM.lv), rep(0, BM.lv), 
+       BM.PCA$rotation[BM.vec, 1]/scal, 
+       BM.PCA$rotation[BM.vec, 2]/scal, 
        length = 0.1, lwd = 2, angle = 20, 
        col = c("#B7B7B7","#CC79A7","#B78560","#43BA8F"))
-#labels = BM.vec.vif,  cex = 0.5, pos = 2)
-# Light gray background
-#addTextLabels(BM.PCA.vif.sites_names[, 3], 
-#BM.PCA.vif.sites_names[, 4], 
-#BM.PCA.vif.sites_names$Pop ,
+#labels = BM.vec,  cex = 0.5, pos = 2)
+#addTextLabels(BM.PCA.sites_names[, 3], 
+#BM.PCA.sites_names[, 4], 
+#BM.PCA.sites_names$Pop ,
 #col.background=rgb(0,0,0,0.75),
 #cex.label=0.7, col.label="white")
 dev.off()
 
-#Plot (map) predicted genetic turnover in geographic space
-# *BM.PCA.vif is remvoing NAs, so the BM.vec.viftor is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
-Env.stack.3.grid$x <- 1:nrow(Env.stack.3.grid)
-Env.stack.3.grid$nas <- complete.cases(Env.stack.3.grid)
-BM.pcs.vif <- as.data.frame(BM.PCA.vif$x)
-BM.pcs.vif$x <- Env.stack.3.grid$x[Env.stack.3.grid$nas]
-BM.pcs.vif <- merge(BM.pcs.vif, Env.stack.3.grid, by = "x", all = TRUE)
-BM.pcs.vif$r <- BM.pcs.vif$PC1 + BM.pcs.vif$PC2
-BM.pcs.vif$g <- -BM.pcs.vif$PC2
-BM.pcs.vif$b <- BM.pcs.vif$PC3 + BM.pcs.vif$PC2 - BM.pcs.vif$PC1
-BM.pcs.vif$r <- (BM.pcs.vif$r - min(BM.pcs.vif$r, na.rm = TRUE))/(max(BM.pcs.vif$r, na.rm = TRUE) - min(BM.pcs.vif$r, na.rm = TRUE)) * 255
-BM.pcs.vif$g <- (BM.pcs.vif$g - min(BM.pcs.vif$g, na.rm = TRUE))/(max(BM.pcs.vif$g, na.rm = TRUE) - min(BM.pcs.vif$g, na.rm = TRUE)) * 255
-BM.pcs.vif$b <- (BM.pcs.vif$b - min(BM.pcs.vif$b, na.rm = TRUE))/(max(BM.pcs.vif$b, na.rm = TRUE) - min(BM.pcs.vif$b, na.rm = TRUE)) * 255
-BM.raster.r.vif <- BM.raster.g.vif <- BM.raster.b.vif <- Env.stack.3[[1]]
-values(BM.raster.r.vif) <- BM.pcs.vif$r
-values(BM.raster.g.vif) <- BM.pcs.vif$g
-values(BM.raster.b.vif) <- BM.pcs.vif$b
-BM.rgbmap.vif <- stack(BM.raster.r.vif, BM.raster.g.vif, BM.raster.b.vif)
+#Map predicted genetic turnover in geographic space
+Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
+Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
+BM.pcs <- as.data.frame(BM.PCA$x)
+BM.pcs$x <- Env.stack.2.grid$x[Env.stack.2.grid$nas]
+BM.pcs <- merge(BM.pcs, Env.stack.2.grid, by = "x", all = TRUE)
+BM.pcs$r <- BM.pcs$PC1 + BM.pcs$PC2
+BM.pcs$g <- -BM.pcs$PC2
+BM.pcs$b <- BM.pcs$PC3 + BM.pcs$PC2 - BM.pcs$PC1
+BM.pcs$r <- (BM.pcs$r - min(BM.pcs$r, na.rm = TRUE))/(max(BM.pcs$r, na.rm = TRUE) - min(BM.pcs$r, na.rm = TRUE)) * 255
+BM.pcs$g <- (BM.pcs$g - min(BM.pcs$g, na.rm = TRUE))/(max(BM.pcs$g, na.rm = TRUE) - min(BM.pcs$g, na.rm = TRUE)) * 255
+BM.pcs$b <- (BM.pcs$b - min(BM.pcs$b, na.rm = TRUE))/(max(BM.pcs$b, na.rm = TRUE) - min(BM.pcs$b, na.rm = TRUE)) * 255
+BM.raster.r <- BM.raster.g <- BM.raster.b <- Env.stack.2[[1]]
+values(BM.raster.r) <- BM.pcs$r
+values(BM.raster.g) <- BM.pcs$g
+values(BM.raster.b) <- BM.pcs$b
+BM.rgbmap <- stack(BM.raster.r, BM.raster.g, BM.raster.b)
 
-##Map spatial pattern of predicted genomic composition----
-#Load geo coords
-BM.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/BM/BM_coords_Ch2.csv")
+#Load coordinates
+BM.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/BM_coords_Ch2.csv")
 
-png("BM_Mapping_geographic_space_GF_BP_LF_vif.png", width=800, height=1550, res=200)
-plotRGB(BM.rgbmap.vif)
+##Plot using plotRGB function
+png("BM_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
+plotRGB(BM.rgbmap)
 points(BM.coords$lon, BM.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
 dev.off()
 
-BM.coords.shp=st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/BM/BM_coords_Ch2.shp")
+##Plot using ggplot2 function
 
-gnp <- st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Shapefiles/Grampians_W/Grampians_Wh_2.shp")
+#Load sampling locations shapefile 
+BM.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/BM_coords_Ch2.shp")
 
-#hills <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/hills.tif")
+#Load shapefile of Gariwerd boundary
+gnp <- st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/Grampians_Wh_2.shp")
 
-#dem <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/GNP_dem.tif")
-
+#Convert the Pop column into a factor
 BM.coords.shp$Pop <- factor(
   BM.coords.shp$Pop,
   levels = unique(BM.coords.shp$Pop))
 
-BM.rgbmap.vif.spat <- rast(BM.rgbmap.vif)
+#Convert BM.rgbmap into a terra SpatRaster object
+BM.rgbmap.spat <- rast(BM.rgbmap)
 
+#Plot
 ggplot() +
-  geom_spatraster_rgb(data = BM.rgbmap.vif.spat) +
+  geom_spatraster_rgb(data = BM.rgbmap.spat) +
   geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
   geom_point(data = BM.coords.shp, aes(x = lon, y = lat, shape = Pop),
              size = 10, colour = "black", fill = "white",stroke = 1.5) +
@@ -448,13 +384,13 @@ ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) 
 
-ggsave(file = "BM_GF_map_vif.pdf", width = 12, height = 12, dpi = 300)
+ggsave(file = "BM_GF_map.pdf", width = 12, height = 12, dpi = 300)
 ```
 
-```{r Callitris - PCA}
-##load GF object (cal.BP.lfmm.GF.vif) 
+```{r Callitris rhomboidea}
+##load GF object (cal.BP.lfmm.GF) 
  
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/CR/vif/CR_GF_BP_LF_VIF.RData") 
+load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/CR/CR_GF_BP_LF.RData") 
 
 #PCA of the transformed grid for plotting in RGB palette}
 
@@ -464,13 +400,13 @@ load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Exper
 #Reference: https://github.com/hirzi/RhEA/blob/main/Gradient%20forest%20and%20glacial%20genomic%20offset/GradientForest_GlacialGenomicOffset.R#L361
 
 # Transform variables by predicting with GF model
-cal.vars.vif <- names(importance(cal.BP.lfmm.GF.vif))
-CR.grid.pre.vif <- predict(cal.BP.lfmm.GF.vif, Env.stack.3.grid[complete.cases(Env.stack.3.grid), cal.vars.vif]) # need to get rid of NA rows or an error pops up
+cal.vars <- names(importance(cal.BP.lfmm.GF))
+CR.grid.pre <- predict(cal.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), cal.vars]) # need to get rid of NA rows or an error pops up
 
-# CR.PCA.vif of the transformed grid for plotting in RGB palette
-CR.PCA.vif <- prcomp(na.omit(CR.grid.pre.vif), center=TRUE, scale.=FALSE)
-save(CR.PCA.vif, file="CR.PCA.vif.RData")
-CR.pcs.vif.full.gf.vif <- CR.PCA.vif # Output for ensemble model generation
+# CR.PCA of the transformed grid for plotting in RGB palette
+CR.PCA <- prcomp(na.omit(CR.grid.pre), center=TRUE, scale.=FALSE)
+save(CR.PCA, file="CR.PCA.RData")
+CR.pcs.full.gf <- CR.PCA # Output for ensemble model generation
 #Standard deviations (1, .., p=4):
 #  [1] 0.013668758 0.008437451 0.008094986 0.004026576
 
@@ -481,55 +417,55 @@ CR.pcs.vif.full.gf.vif <- CR.PCA.vif # Output for ensemble model generation
 #BIO05  0.4078885  0.4342836 0.2726631  0.75543333
 #pHc    0.3705116  0.4452822 0.5063445 -0.63879586
 
-summary(CR.PCA.vif)
+summary(CR.PCA)
 #Importance of components:
 #                           PC1      PC2      PC3      PC4
 #Standard deviation     0.01367 0.008437 0.008095 0.004027
 #Proportion of Variance 0.54989 0.209530 0.192860 0.047720
 #Cumulative Proportion  0.54989 0.759420 0.952280 1.000000
 
-CR.a1.vif <- CR.PCA.vif$x[, 1]
-CR.a2.vif <- CR.PCA.vif$x[, 2]
-CR.a3.vif <- CR.PCA.vif$x[, 3]
-CR.r.vif <- CR.a1.vif + CR.a2.vif
-CR.g.vif <- -CR.a2.vif
-CR.b.vif <- CR.a3.vif + CR.a2.vif - CR.a1.vif
+CR.a1 <- CR.PCA$x[, 1]
+CR.a2 <- CR.PCA$x[, 2]
+CR.a3 <- CR.PCA$x[, 3]
+CR.r <- CR.a1 + CR.a2
+CR.g <- -CR.a2
+CR.b <- CR.a3 + CR.a2 - CR.a1
 # Scale colors
-CR.r.vif <- (CR.r.vif - min(CR.r.vif))/(max(CR.r.vif) - min(CR.r.vif)) * 255
-CR.g.vif <- (CR.g.vif - min(CR.g.vif))/(max(CR.g.vif) - min(CR.g.vif)) * 255
-CR.b.vif <- (CR.b.vif - min(CR.b.vif))/(max(CR.b.vif) - min(CR.b.vif)) * 255
+CR.r <- (CR.r - min(CR.r))/(max(CR.r) - min(CR.r)) * 255
+CR.g <- (CR.g - min(CR.g))/(max(CR.g) - min(CR.g)) * 255
+CR.b <- (CR.b - min(CR.b))/(max(CR.b) - min(CR.b)) * 255
 
-# Plot predicted genetic turnover in genetic space (CR.PCA.vif biplot)
-CR.nvs.vif <- dim(CR.PCA.vif$rotation)[1]
-CR.vec.vif <- cal.vars.vif
-CR.lv.vif <- length(CR.vec.vif)
-CR.vind.vif <- rownames(CR.PCA.vif$rotation) %in% CR.vec.vif
+# Plot predicted genetic turnover in genetic space (CR.PCA biplot)
+CR.nvs <- dim(CR.PCA$rotation)[1]
+CR.vec <- cal.vars
+CR.lv <- length(CR.vec)
+CR.vind <- rownames(CR.PCA$rotation) %in% CR.vec
 scal <- 20
-CR.xrng.vif <- range(CR.PCA.vif$x[, 1], CR.PCA.vif$rotation[, 1]/scal) * 1.1
-CR.yrng.vif <- range(CR.PCA.vif$x[, 2], CR.PCA.vif$rotation[, 2]/scal) * 1.1
-CR.trns_site.vif <- predict(cal.BP.lfmm.GF.vif)
-CR.PCA.vif.sites <- predict(CR.PCA.vif, CR.trns_site.vif[, cal.vars.vif])
+CR.xrng <- range(CR.PCA$x[, 1], CR.PCA$rotation[, 1]/scal) * 1.1
+CR.yrng <- range(CR.PCA$x[, 2], CR.PCA$rotation[, 2]/scal) * 1.1
+CR.trns_site <- predict(cal.BP.lfmm.GF)
+CR.PCA.sites <- predict(CR.PCA, CR.trns_site[, cal.vars])
 jit <- 0.001
 
-#write.csv(CR.PCA.vif.sites, file="CR.PCA.vif.sites.csv")
-CR.PCA.vif.sites_names <- read.csv("CR.PCA.vif.sites.csv") 
+#write.csv(CR.PCA.sites, file="CR.PCA.sites.csv")
+CR.PCA.sites_names <- read.csv("CR.PCA.sites.csv") 
 
-#tiff("CR_Biplot_biological_space_GF_BP_LF_2_labels_vif.tiff", width=1500, height=1300, res=300)
-#tiff("CR_Biplot_biological_space_GF_BP_LF_2_vec_vif.tiff", width=1500, height=1300, res=300)
-tiff("CR_Biplot_biological_space_GF_BP_LF_2_vif.tiff", width=1500, height=1300, res=300)
+#tiff("CR_Biplot_biological_space_GF_BP_LF_2_labels.tiff", width=1500, height=1300, res=300)
+#tiff("CR_Biplot_biological_space_GF_BP_LF_2_vec.tiff", width=1500, height=1300, res=300)
+tiff("CR_Biplot_biological_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
-plot((CR.PCA.vif$x[, 1:2]), xlim = CR.xrng.vif, ylim = CR.yrng.vif, xlab = "PC1 (55%)", ylab = "PC2 (21%)", 
-     pch = ".", cex = 4, col = rgb(CR.r.vif, CR.g.vif, CR.b.vif, max = 255), 
+plot((CR.PCA$x[, 1:2]), xlim = CR.xrng, ylim = CR.yrng, xlab = "PC1 (55%)", ylab = "PC2 (21%)", 
+     pch = ".", cex = 4, col = rgb(CR.r, CR.g, CR.b, max = 255), 
      asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
 #rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
 #par(new = TRUE)
-#plot((CR.PCA.vif$x[, 1:2]), xlim = CR.xrng.vif, ylim = CR.yrng.vif, xlab = "PC1 (55%)", ylab = "PC2 (21%)", 
+#plot((CR.PCA$x[, 1:2]), xlim = CR.xrng, ylim = CR.yrng, xlab = "PC1 (55%)", ylab = "PC2 (21%)", 
 #     pch = ".", cex = 4, col = rgb(CR.r, CR.g, CR.b, max = 255), 
 #     asp = 1, cex.lab = 2, cex.axis = 1)
 #abline(h = 0, v = 0, col = "grey70", lwd = 1)
 #axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
 #axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
-points(CR.PCA.vif.sites_names[, 3:4],  pch = c(24,
+points(CR.PCA.sites_names[, 3:4],  pch = c(24,
                                            22,
                                            24,
                                            24,
@@ -559,53 +495,53 @@ points(CR.PCA.vif.sites_names[, 3:4],  pch = c(24,
                                            22), lwd = 0.7, cex = 1, 
        bg = NA, 
        col = "black")
-arrows(rep(0, CR.lv.vif), rep(0, CR.lv.vif), 
-       CR.PCA.vif$rotation[CR.vec.vif, 1]/scal, 
-       CR.PCA.vif$rotation[CR.vec.vif, 2]/scal, 
+arrows(rep(0, CR.lv), rep(0, CR.lv), 
+       CR.PCA$rotation[CR.vec, 1]/scal, 
+       CR.PCA$rotation[CR.vec, 2]/scal, 
        length = 0.1, lwd = 3.5, angle = 20, 
        col = "black")
-arrows(rep(0, CR.lv.vif), rep(0, CR.lv.vif), 
-       CR.PCA.vif$rotation[CR.vec.vif, 1]/scal, 
-       CR.PCA.vif$rotation[CR.vec.vif, 2]/scal, 
+arrows(rep(0, CR.lv), rep(0, CR.lv), 
+       CR.PCA$rotation[CR.vec, 1]/scal, 
+       CR.PCA$rotation[CR.vec, 2]/scal, 
        length = 0.1, lwd = 2, angle = 20, 
        col = c("#B78560","#B7B7B7","#CC79A7","#43BA8F"))
-text(CR.PCA.vif$rotation[CR.vec.vif, 1]/scal + jit * sign(CR.PCA.vif$rotation[CR.vec.vif, 1]), 
-     CR.PCA.vif$rotation[CR.vec.vif, 2]/scal + jit * sign(CR.PCA.vif$rotation[CR.vec.vif, 2]), 
+text(CR.PCA$rotation[CR.vec, 1]/scal + jit * sign(CR.PCA$rotation[CR.vec, 1]), 
+     CR.PCA$rotation[CR.vec, 2]/scal + jit * sign(CR.PCA$rotation[CR.vec, 2]), 
      labels = NULL,  cex = 0.5, pos = 2)
-#labels = CR.vec.vif,  cex = 0.5, pos = 2)
+#labels = CR.vec,  cex = 0.5, pos = 2)
 # Light gray background
-#addTextLabels(CR.PCA.vif.sites_names[, 3], 
-#CR.PCA.vif.sites_names[, 4], 
-#CR.PCA.vif.sites_names$Pop ,
+#addTextLabels(CR.PCA.sites_names[, 3], 
+#CR.PCA.sites_names[, 4], 
+#CR.PCA.sites_names$Pop ,
 #col.background=rgb(0,0,0,0.75),
 #cex.label=0.7, col.label="white")
 dev.off()
 
 # Plot (map) predicted genetic turnover in geographic space
-# *CR.PCA.vif is remvoing NAs, so the CR.vec.viftor is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
-Env.stack.3.grid$x <- 1:nrow(Env.stack.3.grid)
-Env.stack.3.grid$nas <- complete.cases(Env.stack.3.grid)
-CR.pcs.vif <- as.data.frame(CR.PCA.vif$x)
-CR.pcs.vif$x <- Env.stack.3.grid$x[Env.stack.3.grid$nas]
-CR.pcs.vif <- merge(CR.pcs.vif, Env.stack.3.grid, by = "x", all = TRUE)
-CR.pcs.vif$r <- CR.pcs.vif$PC1 + CR.pcs.vif$PC2
-CR.pcs.vif$g <- -CR.pcs.vif$PC2
-CR.pcs.vif$b <- CR.pcs.vif$PC3 + CR.pcs.vif$PC2 - CR.pcs.vif$PC1
-CR.pcs.vif$r <- (CR.pcs.vif$r - min(CR.pcs.vif$r, na.rm = TRUE))/(max(CR.pcs.vif$r, na.rm = TRUE) - min(CR.pcs.vif$r, na.rm = TRUE)) * 255
-CR.pcs.vif$g <- (CR.pcs.vif$g - min(CR.pcs.vif$g, na.rm = TRUE))/(max(CR.pcs.vif$g, na.rm = TRUE) - min(CR.pcs.vif$g, na.rm = TRUE)) * 255
-CR.pcs.vif$b <- (CR.pcs.vif$b - min(CR.pcs.vif$b, na.rm = TRUE))/(max(CR.pcs.vif$b, na.rm = TRUE) - min(CR.pcs.vif$b, na.rm = TRUE)) * 255
-CR.raster.r.vif <- CR.raster.g.vif <- CR.raster.b.vif <- Env.stack.3[[1]]
-values(CR.raster.r.vif) <- CR.pcs.vif$r
-values(CR.raster.g.vif) <- CR.pcs.vif$g
-values(CR.raster.b.vif) <- CR.pcs.vif$b
-CR.rgbmap.vif <- stack(CR.raster.r.vif, CR.raster.g.vif, CR.raster.b.vif)
+# *CR.PCA is remvoing NAs, so the CR.vector is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
+Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
+Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
+CR.pcs <- as.data.frame(CR.PCA$x)
+CR.pcs$x <- Env.stack.2.grid$x[Env.stack.2.grid$nas]
+CR.pcs <- merge(CR.pcs, Env.stack.2.grid, by = "x", all = TRUE)
+CR.pcs$r <- CR.pcs$PC1 + CR.pcs$PC2
+CR.pcs$g <- -CR.pcs$PC2
+CR.pcs$b <- CR.pcs$PC3 + CR.pcs$PC2 - CR.pcs$PC1
+CR.pcs$r <- (CR.pcs$r - min(CR.pcs$r, na.rm = TRUE))/(max(CR.pcs$r, na.rm = TRUE) - min(CR.pcs$r, na.rm = TRUE)) * 255
+CR.pcs$g <- (CR.pcs$g - min(CR.pcs$g, na.rm = TRUE))/(max(CR.pcs$g, na.rm = TRUE) - min(CR.pcs$g, na.rm = TRUE)) * 255
+CR.pcs$b <- (CR.pcs$b - min(CR.pcs$b, na.rm = TRUE))/(max(CR.pcs$b, na.rm = TRUE) - min(CR.pcs$b, na.rm = TRUE)) * 255
+CR.raster.r <- CR.raster.g <- CR.raster.b <- Env.stack.2[[1]]
+values(CR.raster.r) <- CR.pcs$r
+values(CR.raster.g) <- CR.pcs$g
+values(CR.raster.b) <- CR.pcs$b
+CR.rgbmap <- stack(CR.raster.r, CR.raster.g, CR.raster.b)
 
 ###Map spatial pattern of predicted genomic composition----
 #Load geo coords
 CR.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/CR/CR_coords_Ch2.csv")
 
-png("CR_Mapping_geographic_space_GF_BP_LF_vif.png", width=800, height=1550, res=200)
-plotRGB(CR.rgbmap.vif)
+png("CR_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
+plotRGB(CR.rgbmap)
 points(CR.coords$lon, CR.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
 dev.off()
 
@@ -621,10 +557,10 @@ CR.coords.shp$Pop <- factor(
   CR.coords.shp$Pop,
   levels = unique(CR.coords.shp$Pop))
 
-CR.rgbmap.vif.spat <- rast(CR.rgbmap.vif)
+CR.rgbmap.spat <- rast(CR.rgbmap)
 
 ggplot() +
-  geom_spatraster_rgb(data = CR.rgbmap.vif.spat) +
+  geom_spatraster_rgb(data = CR.rgbmap.spat) +
   geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
   geom_point(data = CR.coords.shp, aes(x = lon, y = lat, shape = Pop),
              size = 10, colour = "black", fill = "white",stroke = 1.5) +
@@ -665,15 +601,15 @@ ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) 
 
-ggsave(file = "CR_GF_map_vif.pdf", width = 12, height = 12, dpi = 300)
+ggsave(file = "CR_GF_map.pdf", width = 12, height = 12, dpi = 300)
 
-save(CR.rgbmap.vif, file="CR.rgbmap.vif.Rdata")
+save(CR.rgbmap, file="CR.rgbmap.Rdata")
 ```
 
-```{r Epacris - PCA}
-##load GF object (epa.BP.lfmm.GF.vif) 
+```{r Epacris impressa}
+##load GF object (epa.BP.lfmm.GF) 
  
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/EI/vif/EI_GF_BP_LF_VIF.RData") 
+load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/EI/EI_GF_BP_LF.RData") 
 
 #PCA of the transformed grid for plotting in RGB palette}
 
@@ -683,13 +619,13 @@ load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Exper
 #Reference: https://github.com/hirzi/RhEA/blob/main/Gradient%20forest%20and%20glacial%20genomic%20offset/GradientForest_GlacialGenomicOffset.R#L361
 
 # Transform variables by predicting with GF model
-epa.vars.vif <- names(importance(epa.BP.lfmm.GF.vif))
-EI.grid.pre.vif <- predict(epa.BP.lfmm.GF.vif, Env.stack.3.grid[complete.cases(Env.stack.3.grid), epa.vars.vif]) # need to get rid of NA rows or an error pops up
+epa.vars <- names(importance(epa.BP.lfmm.GF))
+EI.grid.pre <- predict(epa.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), epa.vars]) # need to get rid of NA rows or an error pops up
 
-# EI.PCA.vif of the transformed grid for plotting in RGB palette
-EI.PCA.vif <- prcomp(na.omit(EI.grid.pre.vif), center=TRUE, sepae.=FALSE)
-save(EI.PCA.vif, file="EI.PCA.vif.RData")
-EI.pcs.vif.full.gf.vif <- EI.PCA.vif # Output for ensemble model generation
+# EI.PCA of the transformed grid for plotting in RGB palette
+EI.PCA <- prcomp(na.omit(EI.grid.pre), center=TRUE, sepae.=FALSE)
+save(EI.PCA, file="EI.PCA.RData")
+EI.pcs.full.gf <- EI.PCA # Output for ensemble model generation
 #Standard deviations (1, .., p=4):
 #  [1] 0.021566050 0.012973156 0.008178401 0.006395288
 
@@ -700,55 +636,55 @@ EI.pcs.vif.full.gf.vif <- EI.PCA.vif # Output for ensemble model generation
 #BIO05 -0.5802777  0.1925890  0.6583791  0.4390036
 #AVP    0.1635300  0.2047080 -0.4756594  0.8397027
 
-summary(EI.PCA.vif)
+summary(EI.PCA)
 #Importance of components:
 #                           PC1     PC2      PC3      PC4
 #Standard deviation     0.02157 0.01297 0.008178 0.006395
 #Proportion of Variance 0.62750 0.22707 0.090240 0.055180
 #Cumulative Proportion  0.62750 0.85458 0.944820 1.000000
 
-EI.a1.vif <- EI.PCA.vif$x[, 1]
-EI.a2.vif <- EI.PCA.vif$x[, 2]
-EI.a3.vif <- EI.PCA.vif$x[, 3]
-EI.r.vif <- EI.a1.vif + EI.a2.vif
-EI.g.vif <- -EI.a2.vif
-EI.b.vif <- EI.a3.vif + EI.a2.vif - EI.a1.vif
+EI.a1 <- EI.PCA$x[, 1]
+EI.a2 <- EI.PCA$x[, 2]
+EI.a3 <- EI.PCA$x[, 3]
+EI.r <- EI.a1 + EI.a2
+EI.g <- -EI.a2
+EI.b <- EI.a3 + EI.a2 - EI.a1
 # Sepae colors
-EI.r.vif <- (EI.r.vif - min(EI.r.vif))/(max(EI.r.vif) - min(EI.r.vif)) * 255
-EI.g.vif <- (EI.g.vif - min(EI.g.vif))/(max(EI.g.vif) - min(EI.g.vif)) * 255
-EI.b.vif <- (EI.b.vif - min(EI.b.vif))/(max(EI.b.vif) - min(EI.b.vif)) * 255
+EI.r <- (EI.r - min(EI.r))/(max(EI.r) - min(EI.r)) * 255
+EI.g <- (EI.g - min(EI.g))/(max(EI.g) - min(EI.g)) * 255
+EI.b <- (EI.b - min(EI.b))/(max(EI.b) - min(EI.b)) * 255
 
-# Plot predicted genetic turnover in genetic space (EI.PCA.vif biplot)
-EI.nvs.vif <- dim(EI.PCA.vif$rotation)[1]
-EI.vec.vif <- epa.vars.vif
-EI.lv.vif <- length(EI.vec.vif)
-EI.vind.vif <- rownames(EI.PCA.vif$rotation) %in% EI.vec.vif
+# Plot predicted genetic turnover in genetic space (EI.PCA biplot)
+EI.nvs <- dim(EI.PCA$rotation)[1]
+EI.vec <- epa.vars
+EI.lv <- length(EI.vec)
+EI.vind <- rownames(EI.PCA$rotation) %in% EI.vec
 sepa <- 20
-EI.xrng.vif <- range(EI.PCA.vif$x[, 1], EI.PCA.vif$rotation[, 1]/sepa) * 1.1
-EI.yrng.vif <- range(EI.PCA.vif$x[, 2], EI.PCA.vif$rotation[, 2]/sepa) * 1.1
-EI.trns_site.vif <- predict(epa.BP.lfmm.GF.vif)
-EI.PCA.vif.sites <- predict(EI.PCA.vif, EI.trns_site.vif[, epa.vars.vif])
+EI.xrng <- range(EI.PCA$x[, 1], EI.PCA$rotation[, 1]/sepa) * 1.1
+EI.yrng <- range(EI.PCA$x[, 2], EI.PCA$rotation[, 2]/sepa) * 1.1
+EI.trns_site <- predict(epa.BP.lfmm.GF)
+EI.PCA.sites <- predict(EI.PCA, EI.trns_site[, epa.vars])
 jit <- 0.001
 
-#write.csv(EI.PCA.vif.sites, file="EI.PCA.vif.sites.csv")
-EI.PCA.vif.sites_names <- read.csv("EI.PCA.vif.sites.csv") 
+#write.csv(EI.PCA.sites, file="EI.PCA.sites.csv")
+EI.PCA.sites_names <- read.csv("EI.PCA.sites.csv") 
 
-#tiff("EI_Biplot_biologiepa_space_GF_BP_LF_2_labels_vif.tiff", width=1500, height=1300, res=300)
-#tiff("EI_Biplot_biologiepa_space_GF_BP_LF_2_vec_vif.tiff", width=1500, height=1300, res=300)
-tiff("EI_Biplot_biologiepa_space_GF_BP_LF_2_vif.tiff", width=1500, height=1300, res=300)
+#tiff("EI_Biplot_biologiepa_space_GF_BP_LF_2_labels.tiff", width=1500, height=1300, res=300)
+#tiff("EI_Biplot_biologiepa_space_GF_BP_LF_2_vec.tiff", width=1500, height=1300, res=300)
+tiff("EI_Biplot_biologiepa_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
-plot((EI.PCA.vif$x[, 1:2]), xlim = EI.xrng.vif, ylim = EI.yrng.vif, xlab = "PC1 (63%)", ylab = "PC2 (23%)", 
-     pch = ".", cex = 4, col = rgb(EI.r.vif, EI.g.vif, EI.b.vif, max = 255), 
+plot((EI.PCA$x[, 1:2]), xlim = EI.xrng, ylim = EI.yrng, xlab = "PC1 (63%)", ylab = "PC2 (23%)", 
+     pch = ".", cex = 4, col = rgb(EI.r, EI.g, EI.b, max = 255), 
      asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
 #rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
 #par(new = TRUE)
-#plot((EI.PCA.vif$x[, 1:2]), xlim = EI.xrng.vif, ylim = EI.yrng.vif, xlab = "PC1 (63%)", ylab = "PC2 (23%)", 
+#plot((EI.PCA$x[, 1:2]), xlim = EI.xrng, ylim = EI.yrng, xlab = "PC1 (63%)", ylab = "PC2 (23%)", 
 #     pch = ".", cex = 4, col = rgb(EI.r, EI.g, EI.b, max = 255), 
 #     asp = 1, cex.lab = 2, cex.axis = 1)
 #abline(h = 0, v = 0, col = "grey70", lwd = 1)
 #axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
 #axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
-points(EI.PCA.vif.sites_names[, 3:4],  pch = c(25,
+points(EI.PCA.sites_names[, 3:4],  pch = c(25,
                                            24,
                                            22,
                                            24,
@@ -777,53 +713,53 @@ points(EI.PCA.vif.sites_names[, 3:4],  pch = c(25,
                                            22), lwd = 0.7, cex = 1, 
        bg = NA, 
        col = "black")
-arrows(rep(0, EI.lv.vif), rep(0, EI.lv.vif), 
-       EI.PCA.vif$rotation[EI.vec.vif, 1]/sepa, 
-       EI.PCA.vif$rotation[EI.vec.vif, 2]/sepa, 
+arrows(rep(0, EI.lv), rep(0, EI.lv), 
+       EI.PCA$rotation[EI.vec, 1]/sepa, 
+       EI.PCA$rotation[EI.vec, 2]/sepa, 
        length = 0.1, lwd = 3.5, angle = 20, 
        col = "black")
-arrows(rep(0, EI.lv.vif), rep(0, EI.lv.vif), 
-       EI.PCA.vif$rotation[EI.vec.vif, 1]/sepa, 
-       EI.PCA.vif$rotation[EI.vec.vif, 2]/sepa, 
+arrows(rep(0, EI.lv), rep(0, EI.lv), 
+       EI.PCA$rotation[EI.vec, 1]/sepa, 
+       EI.PCA$rotation[EI.vec, 2]/sepa, 
        length = 0.1, lwd = 2, angle = 20, 
        col = c("#43BA8F","#B78560","#CC79A7","#B7B7B7"))
-text(EI.PCA.vif$rotation[EI.vec.vif, 1]/sepa + jit * sign(EI.PCA.vif$rotation[EI.vec.vif, 1]), 
-     EI.PCA.vif$rotation[EI.vec.vif, 2]/sepa + jit * sign(EI.PCA.vif$rotation[EI.vec.vif, 2]), 
+text(EI.PCA$rotation[EI.vec, 1]/sepa + jit * sign(EI.PCA$rotation[EI.vec, 1]), 
+     EI.PCA$rotation[EI.vec, 2]/sepa + jit * sign(EI.PCA$rotation[EI.vec, 2]), 
      labels = NULL,  cex = 0.5, pos = 2)
-#labels = EI.vec.vif,  cex = 0.5, pos = 2)
+#labels = EI.vec,  cex = 0.5, pos = 2)
 # Light gray background
-#addTextLabels(EI.PCA.vif.sites_names[, 3], 
-#EI.PCA.vif.sites_names[, 4], 
-#EI.PCA.vif.sites_names$Pop ,
+#addTextLabels(EI.PCA.sites_names[, 3], 
+#EI.PCA.sites_names[, 4], 
+#EI.PCA.sites_names$Pop ,
 #col.background=rgb(0,0,0,0.75),
 #cex.label=0.7, col.label="white")
 dev.off()
 
 # Plot (map) predicted genetic turnover in geographic space
-# *EI.PCA.vif is remvoing NAs, so the EI.vec.viftor is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
-Env.stack.3.grid$x <- 1:nrow(Env.stack.3.grid)
-Env.stack.3.grid$nas <- complete.cases(Env.stack.3.grid)
-EI.pcs.vif <- as.data.frame(EI.PCA.vif$x)
-EI.pcs.vif$x <- Env.stack.3.grid$x[Env.stack.3.grid$nas]
-EI.pcs.vif <- merge(EI.pcs.vif, Env.stack.3.grid, by = "x", all = TRUE)
-EI.pcs.vif$r <- EI.pcs.vif$PC1 + EI.pcs.vif$PC2
-EI.pcs.vif$g <- -EI.pcs.vif$PC2
-EI.pcs.vif$b <- EI.pcs.vif$PC3 + EI.pcs.vif$PC2 - EI.pcs.vif$PC1
-EI.pcs.vif$r <- (EI.pcs.vif$r - min(EI.pcs.vif$r, na.rm = TRUE))/(max(EI.pcs.vif$r, na.rm = TRUE) - min(EI.pcs.vif$r, na.rm = TRUE)) * 255
-EI.pcs.vif$g <- (EI.pcs.vif$g - min(EI.pcs.vif$g, na.rm = TRUE))/(max(EI.pcs.vif$g, na.rm = TRUE) - min(EI.pcs.vif$g, na.rm = TRUE)) * 255
-EI.pcs.vif$b <- (EI.pcs.vif$b - min(EI.pcs.vif$b, na.rm = TRUE))/(max(EI.pcs.vif$b, na.rm = TRUE) - min(EI.pcs.vif$b, na.rm = TRUE)) * 255
-EI.raster.r.vif <- EI.raster.g.vif <- EI.raster.b.vif <- Env.stack.3[[1]]
-values(EI.raster.r.vif) <- EI.pcs.vif$r
-values(EI.raster.g.vif) <- EI.pcs.vif$g
-values(EI.raster.b.vif) <- EI.pcs.vif$b
-EI.rgbmap.vif <- stack(EI.raster.r.vif, EI.raster.g.vif, EI.raster.b.vif)
+# *EI.PCA is remvoing NAs, so the EI.vector is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
+Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
+Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
+EI.pcs <- as.data.frame(EI.PCA$x)
+EI.pcs$x <- Env.stack.2.grid$x[Env.stack.2.grid$nas]
+EI.pcs <- merge(EI.pcs, Env.stack.2.grid, by = "x", all = TRUE)
+EI.pcs$r <- EI.pcs$PC1 + EI.pcs$PC2
+EI.pcs$g <- -EI.pcs$PC2
+EI.pcs$b <- EI.pcs$PC3 + EI.pcs$PC2 - EI.pcs$PC1
+EI.pcs$r <- (EI.pcs$r - min(EI.pcs$r, na.rm = TRUE))/(max(EI.pcs$r, na.rm = TRUE) - min(EI.pcs$r, na.rm = TRUE)) * 255
+EI.pcs$g <- (EI.pcs$g - min(EI.pcs$g, na.rm = TRUE))/(max(EI.pcs$g, na.rm = TRUE) - min(EI.pcs$g, na.rm = TRUE)) * 255
+EI.pcs$b <- (EI.pcs$b - min(EI.pcs$b, na.rm = TRUE))/(max(EI.pcs$b, na.rm = TRUE) - min(EI.pcs$b, na.rm = TRUE)) * 255
+EI.raster.r <- EI.raster.g <- EI.raster.b <- Env.stack.2[[1]]
+values(EI.raster.r) <- EI.pcs$r
+values(EI.raster.g) <- EI.pcs$g
+values(EI.raster.b) <- EI.pcs$b
+EI.rgbmap <- stack(EI.raster.r, EI.raster.g, EI.raster.b)
 
 ###Map spatial pattern of predicted genomic composition----
 #Load geo coords
 EI.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/EI/EI_coords_Ch2.csv")
 
-png("EI_Mapping_geographic_space_GF_BP_LF_vif.png", width=800, height=1550, res=200)
-plotRGB(EI.rgbmap.vif)
+png("EI_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
+plotRGB(EI.rgbmap)
 points(EI.coords$lon, EI.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
 dev.off()
 
@@ -839,10 +775,10 @@ EI.coords.shp$Pop <- factor(
   EI.coords.shp$Pop,
   levels = unique(EI.coords.shp$Pop))
 
-EI.rgbmap.vif.spat <- rast(EI.rgbmap.vif)
+EI.rgbmap.spat <- rast(EI.rgbmap)
 
 ggplot() +
-  geom_spatraster_rgb(data = EI.rgbmap.vif.spat) +
+  geom_spatraster_rgb(data = EI.rgbmap.spat) +
   geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
   geom_point(data = EI.coords.shp, aes(x = lon, y = lat, shape = Pop),
              size = 10, colour = "black", fill = "white",stroke = 1.5) +
@@ -882,12 +818,234 @@ ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) 
 
-ggsave(file = "EI_GF_map_vif.pdf", width = 12, height = 12, dpi = 300)
+ggsave(file = "EI_GF_map.pdf", width = 12, height = 12, dpi = 300)
 
-save(EI.rgbmap.vif, file="EI.rgbmap.vif.Rdata")
+save(EI.rgbmap, file="EI.rgbmap.Rdata")
 ```
 
-```{r Eucalyptus - PCA}
+```{r Eucalyptus obliqua}
+##load GF object (gre.BP.lfmm.GF) 
+
+load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/GA/GA_GF_BP_LF.RData") 
+
+#PCA of the transformed grid for plotting in RGB palette}
+
+#The multi-dimensional biologigre space can most effectively be represented by taking the principle components of the transformed grid and presenting the first two dimensions in a biplot.
+
+# To allow straightforward ProGAustes superpositioning and generation of ensemble model, I only greculate the first 8 PCs here. This is perfectly fine because I anyway only visualise the first 3 PCs. 
+#Reference: https://github.com/hirzi/RhEA/blob/main/Gradient%20forest%20and%20glacial%20genomic%20offset/GradientForest_GlacialGenomicOffset.R#L361
+
+# Transform variables by predicting with GF model
+gre.vars <- names(importance(gre.BP.lfmm.GF))
+GA.grid.pre <- predict(gre.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), gre.vars]) # need to get rid of NA rows or an error pops up
+
+# GA.PCA of the transformed grid for plotting in RGB palette
+GA.PCA <- prcomp(na.omit(GA.grid.pre), center=TRUE, scale.=FALSE)
+save(GA.PCA, file="GA.PCA.RData")
+GA.pcs.full.gf <- GA.PCA # Output for ensemble model generation
+#Standard deviations (1, .., p=4):
+#  [1] 0.014744988 0.010031450 0.005660944 0.004007094
+
+#Rotation (n x k) = (4 x 4):
+#             PC1         PC2         PC3         PC4
+#AVP    0.8420279 -0.50386179 -0.16878209 -0.09287060
+#TWI   -0.2410700 -0.08576805 -0.96606432  0.03533836
+#pHc   -0.3742612 -0.77379302  0.17959229  0.47845538
+#BIO05 -0.3046356 -0.37418111  0.07732362 -0.87247160
+
+summary(GA.PCA)
+#Importance of components:
+#                           PC1     PC2      PC3      PC4
+#Standard deviation     0.01474 0.01003 0.005661 0.004007
+#Proportion of Variance 0.59379 0.27483 0.087520 0.043850
+#Cumulative Proportion  0.59379 0.86862 0.956150 1.000000
+
+GA.a1 <- GA.PCA$x[, 1]
+GA.a2 <- GA.PCA$x[, 2]
+GA.a3 <- GA.PCA$x[, 3]
+GA.r <- GA.a1 + GA.a2
+GA.g <- -GA.a2
+GA.b <- GA.a3 + GA.a2 - GA.a1
+# scale colors
+GA.r <- (GA.r - min(GA.r))/(max(GA.r) - min(GA.r)) * 255
+GA.g <- (GA.g - min(GA.g))/(max(GA.g) - min(GA.g)) * 255
+GA.b <- (GA.b - min(GA.b))/(max(GA.b) - min(GA.b)) * 255
+
+# Plot predicted genetic turnover in genetic space (GA.PCA biplot)
+GA.nvs <- dim(GA.PCA$rotation)[1]
+GA.vec <- gre.vars
+GA.lv <- length(GA.vec)
+GA.vind <- rownames(GA.PCA$rotation) %in% GA.vec
+scal <- 20
+GA.xrng <- range(GA.PCA$x[, 1], GA.PCA$rotation[, 1]/scal) * 1.1
+GA.yrng <- range(GA.PCA$x[, 2], GA.PCA$rotation[, 2]/scal) * 1.1
+GA.trns_site <- predict(gre.BP.lfmm.GF)
+GA.PCA.sites <- predict(GA.PCA, GA.trns_site[, gre.vars])
+jit <- 0.001
+
+#write.csv(GA.PCA.sites, file="GA.PCA.sites.csv")
+GA.PCA.sites_names <- read.csv("GA.PCA.sites.csv") 
+
+#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_labels.tiff", width=1500, height=1300, res=300)
+#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_vec.tiff", width=1500, height=1300, res=300)
+tiff("GA_Biplot_biologigre_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
+par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
+plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
+     pch = ".", cex = 4, col = rgb(GA.r, GA.g, GA.b, max = 255), 
+     asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
+#rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
+#par(new = TRUE)
+#plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
+#     pch = ".", cex = 4, col = rgb(GA.r, GA.g, GA.b, max = 255), 
+#     asp = 1, cex.lab = 2, cex.axis = 1)
+#abline(h = 0, v = 0, col = "grey70", lwd = 1)
+#axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
+#axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
+points(GA.PCA.sites_names[, 3:4],  pch = c(25,
+                                           24,
+                                           22,
+                                           24,
+                                           24,
+                                           21,
+                                           24,
+                                           24,
+                                           23,
+                                           22,
+                                           23,
+                                           22,
+                                           23,
+                                           23,
+                                           9,
+                                           9,
+                                           23,
+                                           21,
+                                           21,
+                                           21,
+                                           22,
+                                           25,
+                                           23,
+                                           24,
+                                           24,
+                                           25,
+                                           25,
+                                           22,
+                                           22), lwd = 0.7, cex =1, 
+       bg = NA, 
+       col = "black")
+arrows(rep(0, GA.lv), rep(0, GA.lv), 
+       GA.PCA$rotation[GA.vec, 1]/scal, 
+       GA.PCA$rotation[GA.vec, 2]/scal, 
+       length = 0.1, lwd = 3.5, angle = 20, 
+       col = "black")
+arrows(rep(0, GA.lv), rep(0, GA.lv), 
+       GA.PCA$rotation[GA.vec, 1]/scal, 
+       GA.PCA$rotation[GA.vec, 2]/scal, 
+       length = 0.1, lwd = 2, angle = 20, 
+       col = c("#B7B7B7","#B78560","#43BA8F","#CC79A7"))
+text(GA.PCA$rotation[GA.vec, 1]/scal + jit * sign(GA.PCA$rotation[GA.vec, 1]), 
+     GA.PCA$rotation[GA.vec, 2]/scal + jit * sign(GA.PCA$rotation[GA.vec, 2]), 
+     labels = NULL,  cex = 0.5, pos = 2)
+#labels = GA.vec,  cex = 0.5, pos = 2)
+# Light gray background
+#addTextLabels(GA.PCA.sites_names[, 3], 
+#GA.PCA.sites_names[, 4], 
+#GA.PCA.sites_names$Pop ,
+#col.background=rgb(0,0,0,0.75),
+#cex.label=0.7, col.label="white")
+dev.off()
+
+# Plot (map) predicted genetic turnover in geographic space
+# *GA.PCA is remvoing NAs, so the GA.vector is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
+Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
+Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
+GA.pcs <- as.data.frame(GA.PCA$x)
+GA.pcs$x <- Env.stack.2.grid$x[Env.stack.2.grid$nas]
+GA.pcs <- merge(GA.pcs, Env.stack.2.grid, by = "x", all = TRUE)
+GA.pcs$r <- GA.pcs$PC1 + GA.pcs$PC2
+GA.pcs$g <- -GA.pcs$PC2
+GA.pcs$b <- GA.pcs$PC3 + GA.pcs$PC2 - GA.pcs$PC1
+GA.pcs$r <- (GA.pcs$r - min(GA.pcs$r, na.rm = TRUE))/(max(GA.pcs$r, na.rm = TRUE) - min(GA.pcs$r, na.rm = TRUE)) * 255
+GA.pcs$g <- (GA.pcs$g - min(GA.pcs$g, na.rm = TRUE))/(max(GA.pcs$g, na.rm = TRUE) - min(GA.pcs$g, na.rm = TRUE)) * 255
+GA.pcs$b <- (GA.pcs$b - min(GA.pcs$b, na.rm = TRUE))/(max(GA.pcs$b, na.rm = TRUE) - min(GA.pcs$b, na.rm = TRUE)) * 255
+GA.raster.r <- GA.raster.g <- GA.raster.b <- Env.stack.2[[1]]
+values(GA.raster.r) <- GA.pcs$r
+values(GA.raster.g) <- GA.pcs$g
+values(GA.raster.b) <- GA.pcs$b
+GA.rgbmap <- stack(GA.raster.r, GA.raster.g, GA.raster.b)
+
+###Map spatial pattern of predicted genomic composition----
+#Load geo coords
+GA.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/GA/GA_coords_Ch2.csv")
+
+png("GA_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
+plotRGB(GA.rgbmap)
+points(GA.coords$lon, GA.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
+dev.off()
+
+GA.coords.shp=st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/GA/GA_coords_Ch2.shp")
+
+gnp <- st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Shapefiles/Grampians_W/Grampians_Wh_2.shp")
+
+#hills <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/hills.tif")
+
+#dem <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/GNP_dem.tif")
+
+GA.coords.shp$Pop <- factor(
+  GA.coords.shp$Pop,
+  levels = unique(GA.coords.shp$Pop)
+)
+
+GA.rgbmap.spat <- rast(GA.rgbmap)
+
+ggplot() +
+  geom_spatraster_rgb(data = GA.rgbmap.spat) +
+  geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
+  geom_point(data = GA.coords.shp, aes(x = lon, y = lat, shape = Pop),
+             size = 10, colour = "black", fill = "white",stroke = 1.5) +
+  scale_shape_manual(values = c(25,
+                                24,
+                                22,
+                                24,
+                                24,
+                                21,
+                                24,
+                                24,
+                                23,
+                                22,
+                                23,
+                                22,
+                                23,
+                                23,
+                                9,
+                                9,
+                                23,
+                                21,
+                                21,
+                                21,
+                                22,
+                                25,
+                                23,
+                                24,
+                                24,
+                                25,
+                                25,
+                                22,
+                                22)) +  
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) 
+
+ggsave(file = "GA_GF_map.pdf", width = 12, height = 12, dpi = 300)
+
+save(GA.rgbmap, file="GA.rgbmap.Rdata") 
+```
+
+```{r Grevillea aquifolium}
 ##load GF object (gre.BP.lfmm.GF.vif) 
 
 load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/GA/vif/GA_GF_BP_LF_VIF.RData") 
@@ -901,7 +1059,7 @@ load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Exper
 
 # Transform variables by predicting with GF model
 gre.vars.vif <- names(importance(gre.BP.lfmm.GF.vif))
-GA.grid.pre.vif <- predict(gre.BP.lfmm.GF.vif, Env.stack.3.grid[complete.cases(Env.stack.3.grid), gre.vars.vif]) # need to get rid of NA rows or an error pops up
+GA.grid.pre.vif <- predict(gre.BP.lfmm.GF.vif, Env.stack.2.grid[complete.cases(Env.stack.2.grid), gre.vars.vif]) # need to get rid of NA rows or an error pops up
 
 # GA.PCA.vif of the transformed grid for plotting in RGB palette
 GA.PCA.vif <- prcomp(na.omit(GA.grid.pre.vif), center=TRUE, scale.=FALSE)
@@ -1020,18 +1178,18 @@ dev.off()
 
 # Plot (map) predicted genetic turnover in geographic space
 # *GA.PCA.vif is remvoing NAs, so the GA.vec.viftor is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
-Env.stack.3.grid$x <- 1:nrow(Env.stack.3.grid)
-Env.stack.3.grid$nas <- complete.cases(Env.stack.3.grid)
+Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
+Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
 GA.pcs.vif <- as.data.frame(GA.PCA.vif$x)
-GA.pcs.vif$x <- Env.stack.3.grid$x[Env.stack.3.grid$nas]
-GA.pcs.vif <- merge(GA.pcs.vif, Env.stack.3.grid, by = "x", all = TRUE)
+GA.pcs.vif$x <- Env.stack.2.grid$x[Env.stack.2.grid$nas]
+GA.pcs.vif <- merge(GA.pcs.vif, Env.stack.2.grid, by = "x", all = TRUE)
 GA.pcs.vif$r <- GA.pcs.vif$PC1 + GA.pcs.vif$PC2
 GA.pcs.vif$g <- -GA.pcs.vif$PC2
 GA.pcs.vif$b <- GA.pcs.vif$PC3 + GA.pcs.vif$PC2 - GA.pcs.vif$PC1
 GA.pcs.vif$r <- (GA.pcs.vif$r - min(GA.pcs.vif$r, na.rm = TRUE))/(max(GA.pcs.vif$r, na.rm = TRUE) - min(GA.pcs.vif$r, na.rm = TRUE)) * 255
 GA.pcs.vif$g <- (GA.pcs.vif$g - min(GA.pcs.vif$g, na.rm = TRUE))/(max(GA.pcs.vif$g, na.rm = TRUE) - min(GA.pcs.vif$g, na.rm = TRUE)) * 255
 GA.pcs.vif$b <- (GA.pcs.vif$b - min(GA.pcs.vif$b, na.rm = TRUE))/(max(GA.pcs.vif$b, na.rm = TRUE) - min(GA.pcs.vif$b, na.rm = TRUE)) * 255
-GA.raster.r.vif <- GA.raster.g.vif <- GA.raster.b.vif <- Env.stack.3[[1]]
+GA.raster.r.vif <- GA.raster.g.vif <- GA.raster.b.vif <- Env.stack.2[[1]]
 values(GA.raster.r.vif) <- GA.pcs.vif$r
 values(GA.raster.g.vif) <- GA.pcs.vif$g
 values(GA.raster.b.vif) <- GA.pcs.vif$b
@@ -1106,13 +1264,13 @@ ggplot() +
 
 ggsave(file = "GA_GF_map_vif.pdf", width = 12, height = 12, dpi = 300)
 
-save(GA.rgbmap.vif, file="GA.rgbmap.vif.Rdata") 
+save(GA.rgbmap.vif, file="GA.rgbmap.vif.Rdata")
 ```
 
-```{r Xanthorrhoea- PCA}
-##load GF object (xan.BP.lfmm.GF.vif) 
+```{r Xanthorrhoea australis}
+##load GF object (xan.BP.lfmm.GF) 
 
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/XA/vif/XA_GF_BP_LF_VIF.RData") 
+load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/XA/XA_GF_BP_LF.RData") 
 
 #PCA of the transformed grid for plotting in RGB palette}
 
@@ -1122,13 +1280,13 @@ load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Exper
 #Reference: https://github.com/hirzi/RhEA/blob/main/Gradient%20forest%20and%20glacial%20genomic%20offset/GradientForest_GlacialGenomicOffset.R#L361
 
 # Transform variables by predicting with GF model
-xan.vars.vif <- names(importance(xan.BP.lfmm.GF.vif))
-XA.grid.pre.vif <- predict(xan.BP.lfmm.GF.vif, Env.stack.3.grid[complete.cases(Env.stack.3.grid), xan.vars.vif]) # need to get rid of NA rows or an error pops up
+xan.vars <- names(importance(xan.BP.lfmm.GF))
+XA.grid.pre <- predict(xan.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), xan.vars]) # need to get rid of NA rows or an error pops up
 
-# XA.PCA.vif of the transformed grid for plotting in RGB palette
-XA.PCA.vif <- prcomp(na.omit(XA.grid.pre.vif), center=TRUE, scale.=FALSE)
-save(XA.PCA.vif, file="XA.PCA.vif.RData")
-XA.pcs.vif.full.gf.vif <- XA.PCA.vif # Output for ensemble model generation
+# XA.PCA of the transformed grid for plotting in RGB palette
+XA.PCA <- prcomp(na.omit(XA.grid.pre), center=TRUE, scale.=FALSE)
+save(XA.PCA, file="XA.PCA.RData")
+XA.pcs.full.gf <- XA.PCA # Output for ensemble model generation
 #Standard deviations (1, .., p=4):
 #  [1] 0.018842402 0.011470832 0.010728110 0.005109098
 
@@ -1139,55 +1297,55 @@ XA.pcs.vif.full.gf.vif <- XA.PCA.vif # Output for ensemble model generation
 #AVP   -0.5448735  0.1144524 -0.81309769  0.169957747
 #pHc    0.4251624  0.6630520 -0.30363666 -0.536100540
 
-summary(XA.PCA.vif)
+summary(XA.PCA)
 #Importance of components:
 #                           PC1     PC2     PC3      PC4
 #Standard deviation     0.01884 0.01147 0.01073 0.005109
 #Proportion of Variance 0.56551 0.20959 0.18332 0.041580
 #Cumulative Proportion  0.56551 0.77510 0.95842 1.000000
 
-XA.a1.vif <- XA.PCA.vif$x[, 1]
-XA.a2.vif <- XA.PCA.vif$x[, 2]
-XA.a3.vif <- XA.PCA.vif$x[, 3]
-XA.r.vif <- XA.a1.vif + XA.a2.vif
-XA.g.vif <- -XA.a2.vif
-XA.b.vif <- XA.a3.vif + XA.a2.vif - XA.a1.vif
+XA.a1 <- XA.PCA$x[, 1]
+XA.a2 <- XA.PCA$x[, 2]
+XA.a3 <- XA.PCA$x[, 3]
+XA.r <- XA.a1 + XA.a2
+XA.g <- -XA.a2
+XA.b <- XA.a3 + XA.a2 - XA.a1
 # scale colors
-XA.r.vif <- (XA.r.vif - min(XA.r.vif))/(max(XA.r.vif) - min(XA.r.vif)) * 255
-XA.g.vif <- (XA.g.vif - min(XA.g.vif))/(max(XA.g.vif) - min(XA.g.vif)) * 255
-XA.b.vif <- (XA.b.vif - min(XA.b.vif))/(max(XA.b.vif) - min(XA.b.vif)) * 255
+XA.r <- (XA.r - min(XA.r))/(max(XA.r) - min(XA.r)) * 255
+XA.g <- (XA.g - min(XA.g))/(max(XA.g) - min(XA.g)) * 255
+XA.b <- (XA.b - min(XA.b))/(max(XA.b) - min(XA.b)) * 255
 
-# Plot predicted genetic turnover in genetic space (XA.PCA.vif biplot)
-XA.nvs.vif <- dim(XA.PCA.vif$rotation)[1]
-XA.vec.vif <- xan.vars.vif
-XA.lv.vif <- length(XA.vec.vif)
-XA.vind.vif <- rownames(XA.PCA.vif$rotation) %in% XA.vec.vif
+# Plot predicted genetic turnover in genetic space (XA.PCA biplot)
+XA.nvs <- dim(XA.PCA$rotation)[1]
+XA.vec <- xan.vars
+XA.lv <- length(XA.vec)
+XA.vind <- rownames(XA.PCA$rotation) %in% XA.vec
 scal <- 20
-XA.xrng.vif <- range(XA.PCA.vif$x[, 1], XA.PCA.vif$rotation[, 1]/scal) * 1.1
-XA.yrng.vif <- range(XA.PCA.vif$x[, 2], XA.PCA.vif$rotation[, 2]/scal) * 1.1
-XA.trns_site.vif <- predict(xan.BP.lfmm.GF.vif)
-XA.PCA.vif.sites <- predict(XA.PCA.vif, XA.trns_site.vif[, xan.vars.vif])
+XA.xrng <- range(XA.PCA$x[, 1], XA.PCA$rotation[, 1]/scal) * 1.1
+XA.yrng <- range(XA.PCA$x[, 2], XA.PCA$rotation[, 2]/scal) * 1.1
+XA.trns_site <- predict(xan.BP.lfmm.GF)
+XA.PCA.sites <- predict(XA.PCA, XA.trns_site[, xan.vars])
 jit <- 0.001
 
-#write.csv(XA.PCA.vif.sites, file="XA.PCA.vif.sites.csv")
-XA.PCA.vif.sites_names <- read.csv("XA.PCA.vif.sites.csv") 
+#write.csv(XA.PCA.sites, file="XA.PCA.sites.csv")
+XA.PCA.sites_names <- read.csv("XA.PCA.sites.csv") 
 
-#tiff("XA_Biplot_biologixan_space_GF_BP_LF_2_labels_vif.tiff", width=1500, height=1300, res=300)
-#tiff("XA_Biplot_biologixan_space_GF_BP_LF_2_vec_vif.tiff", width=1500, height=1300, res=300)
-tiff("XA_Biplot_biologixan_space_GF_BP_LF_2_vif.tiff", width=1500, height=1300, res=300)
+#tiff("XA_Biplot_biologixan_space_GF_BP_LF_2_labels.tiff", width=1500, height=1300, res=300)
+#tiff("XA_Biplot_biologixan_space_GF_BP_LF_2_vec.tiff", width=1500, height=1300, res=300)
+tiff("XA_Biplot_biologixan_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
-plot((XA.PCA.vif$x[, 1:2]), xlim = XA.xrng.vif, ylim = XA.yrng.vif, xlab = "PC1 (57%)", ylab = "PC2 (21%)", 
-     pch = ".", cex = 4, col = rgb(XA.r.vif, XA.g.vif, XA.b.vif, max = 255), 
+plot((XA.PCA$x[, 1:2]), xlim = XA.xrng, ylim = XA.yrng, xlab = "PC1 (57%)", ylab = "PC2 (21%)", 
+     pch = ".", cex = 4, col = rgb(XA.r, XA.g, XA.b, max = 255), 
      asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
 #rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
 #par(new = TRUE)
-#plot((XA.PCA.vif$x[, 1:2]), xlim = XA.xrng.vif, ylim = XA.yrng.vif, xlab = "PC1 (57%)", ylab = "PC2 (21%)", 
+#plot((XA.PCA$x[, 1:2]), xlim = XA.xrng, ylim = XA.yrng, xlab = "PC1 (57%)", ylab = "PC2 (21%)", 
 #     pch = ".", cex = 4, col = rgb(XA.r, XA.g, XA.b, max = 255), 
 #     asp = 1, cex.lab = 2, cex.axis = 1)
 #abline(h = 0, v = 0, col = "grey70", lwd = 1)
 #axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
 #axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
-points(XA.PCA.vif.sites_names[, 3:4],  pch = c(25,
+points(XA.PCA.sites_names[, 3:4],  pch = c(25,
                                            24,
                                            22,
                                            24,
@@ -1219,53 +1377,53 @@ points(XA.PCA.vif.sites_names[, 3:4],  pch = c(25,
                                            22), lwd = 0.7, cex = 1, 
        bg = NA, 
        col = "black")
-arrows(rep(0, XA.lv.vif), rep(0, XA.lv.vif), 
-       XA.PCA.vif$rotation[XA.vec.vif, 1]/scal, 
-       XA.PCA.vif$rotation[XA.vec.vif, 2]/scal, 
+arrows(rep(0, XA.lv), rep(0, XA.lv), 
+       XA.PCA$rotation[XA.vec, 1]/scal, 
+       XA.PCA$rotation[XA.vec, 2]/scal, 
        length = 0.1, lwd = 3.5, angle = 20, 
        col = "black")
-arrows(rep(0, XA.lv.vif), rep(0, XA.lv.vif), 
-       XA.PCA.vif$rotation[XA.vec.vif, 1]/scal, 
-       XA.PCA.vif$rotation[XA.vec.vif, 2]/scal, 
+arrows(rep(0, XA.lv), rep(0, XA.lv), 
+       XA.PCA$rotation[XA.vec, 1]/scal, 
+       XA.PCA$rotation[XA.vec, 2]/scal, 
        length = 0.1, lwd = 2, angle = 20, 
        col = c("#B78560","#CC79A7","#B7B7B7","#43BA8F"))
-text(XA.PCA.vif$rotation[XA.vec.vif, 1]/scal + jit * sign(XA.PCA.vif$rotation[XA.vec.vif, 1]), 
-     XA.PCA.vif$rotation[XA.vec.vif, 2]/scal + jit * sign(XA.PCA.vif$rotation[XA.vec.vif, 2]), 
+text(XA.PCA$rotation[XA.vec, 1]/scal + jit * sign(XA.PCA$rotation[XA.vec, 1]), 
+     XA.PCA$rotation[XA.vec, 2]/scal + jit * sign(XA.PCA$rotation[XA.vec, 2]), 
      labels = NULL,  cex = 0.5, pos = 2)
-#labels = XA.vec.vif,  cex = 0.5, pos = 2)
+#labels = XA.vec,  cex = 0.5, pos = 2)
 # Light gray background
-#addTextLabels(XA.PCA.vif.sites_names[, 3], 
-#XA.PCA.vif.sites_names[, 4], 
-#XA.PCA.vif.sites_names$Pop ,
+#addTextLabels(XA.PCA.sites_names[, 3], 
+#XA.PCA.sites_names[, 4], 
+#XA.PCA.sites_names$Pop ,
 #col.background=rgb(0,0,0,0.75),
 #cex.label=0.7, col.label="white")
 dev.off()
 
 # Plot (map) predicted genetic turnover in geographic space
-# *XA.PCA.vif is remvoing NAs, so the XA.vec.viftor is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
-Env.stack.3.grid$x <- 1:nrow(Env.stack.3.grid)
-Env.stack.3.grid$nas <- complete.cases(Env.stack.3.grid)
-XA.pcs.vif <- as.data.frame(XA.PCA.vif$x)
-XA.pcs.vif$x <- Env.stack.3.grid$x[Env.stack.3.grid$nas]
-XA.pcs.vif <- merge(XA.pcs.vif, Env.stack.3.grid, by = "x", all = TRUE)
-XA.pcs.vif$r <- XA.pcs.vif$PC1 + XA.pcs.vif$PC2
-XA.pcs.vif$g <- -XA.pcs.vif$PC2
-XA.pcs.vif$b <- XA.pcs.vif$PC3 + XA.pcs.vif$PC2 - XA.pcs.vif$PC1
-XA.pcs.vif$r <- (XA.pcs.vif$r - min(XA.pcs.vif$r, na.rm = TRUE))/(max(XA.pcs.vif$r, na.rm = TRUE) - min(XA.pcs.vif$r, na.rm = TRUE)) * 255
-XA.pcs.vif$g <- (XA.pcs.vif$g - min(XA.pcs.vif$g, na.rm = TRUE))/(max(XA.pcs.vif$g, na.rm = TRUE) - min(XA.pcs.vif$g, na.rm = TRUE)) * 255
-XA.pcs.vif$b <- (XA.pcs.vif$b - min(XA.pcs.vif$b, na.rm = TRUE))/(max(XA.pcs.vif$b, na.rm = TRUE) - min(XA.pcs.vif$b, na.rm = TRUE)) * 255
-XA.raster.r.vif <- XA.raster.g.vif <- XA.raster.b.vif <- Env.stack.3[[1]]
-values(XA.raster.r.vif) <- XA.pcs.vif$r
-values(XA.raster.g.vif) <- XA.pcs.vif$g
-values(XA.raster.b.vif) <- XA.pcs.vif$b
-XA.rgbmap.vif <- stack(XA.raster.r.vif, XA.raster.g.vif, XA.raster.b.vif)
+# *XA.PCA is remvoing NAs, so the XA.vector is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
+Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
+Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
+XA.pcs <- as.data.frame(XA.PCA$x)
+XA.pcs$x <- Env.stack.2.grid$x[Env.stack.2.grid$nas]
+XA.pcs <- merge(XA.pcs, Env.stack.2.grid, by = "x", all = TRUE)
+XA.pcs$r <- XA.pcs$PC1 + XA.pcs$PC2
+XA.pcs$g <- -XA.pcs$PC2
+XA.pcs$b <- XA.pcs$PC3 + XA.pcs$PC2 - XA.pcs$PC1
+XA.pcs$r <- (XA.pcs$r - min(XA.pcs$r, na.rm = TRUE))/(max(XA.pcs$r, na.rm = TRUE) - min(XA.pcs$r, na.rm = TRUE)) * 255
+XA.pcs$g <- (XA.pcs$g - min(XA.pcs$g, na.rm = TRUE))/(max(XA.pcs$g, na.rm = TRUE) - min(XA.pcs$g, na.rm = TRUE)) * 255
+XA.pcs$b <- (XA.pcs$b - min(XA.pcs$b, na.rm = TRUE))/(max(XA.pcs$b, na.rm = TRUE) - min(XA.pcs$b, na.rm = TRUE)) * 255
+XA.raster.r <- XA.raster.g <- XA.raster.b <- Env.stack.2[[1]]
+values(XA.raster.r) <- XA.pcs$r
+values(XA.raster.g) <- XA.pcs$g
+values(XA.raster.b) <- XA.pcs$b
+XA.rgbmap <- stack(XA.raster.r, XA.raster.g, XA.raster.b)
 
 ###Map spatial pattern of predicted genomic composition----
 #Load geo coords
 XA.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/XA/XA_coords_Ch2.csv")
 
-png("XA_Mapping_geographic_space_GF_BP_LF_vif.png", width=800, height=1550, res=200)
-plotRGB(XA.rgbmap.vif)
+png("XA_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
+plotRGB(XA.rgbmap)
 points(XA.coords$lon, XA.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
 dev.off()
 
@@ -1281,10 +1439,10 @@ XA.coords.shp$Pop <- factor(
   XA.coords.shp$Pop,
   levels = unique(XA.coords.shp$Pop))
 
-XA.rgbmap.vif.spat <- rast(XA.rgbmap.vif)
+XA.rgbmap.spat <- rast(XA.rgbmap)
 
 ggplot() +
-  geom_spatraster_rgb(data = XA.rgbmap.vif.spat) +
+  geom_spatraster_rgb(data = XA.rgbmap.spat) +
   geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
   geom_point(data = XA.coords.shp, aes(x = lon, y = lat, shape = Pop),
              size = 10, colour = "black", fill = "white",stroke = 1.5) +
@@ -1327,53 +1485,51 @@ ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) 
 
-ggsave(file = "XA_GF_map_vif.pdf", width = 12, height = 12, dpi = 300)
+ggsave(file = "XA_GF_map.pdf", width = 12, height = 12, dpi = 300)
 
-save(XA.rgbmap.vif, file="XA.rgbmap.vif.Rdata")
+save(XA.rgbmap, file="XA.rgbmap.Rdata")
 ```
 
 Procrustes residuals (Figure 4)
 ```{r Procrustes residuals}
-load("BM.PCA.vif.RData")
-load("CR.PCA.vif.RData")
-load("EI.PCA.vif.RData")
-load("EO.PCA.vif.RData")
-load("GA.PCA.vif.RData")
-load("XA.PCA.vif.RData")
+#Load PCA objects for all species
+load("BM.PCA.RData") #Banksia marginata
+load("CR.PCA.RData") #Callitris rhomboidea
+load("EI.PCA.RData") #Epacris impressa
+load("EO.PCA.RData") #Eucalyptus obliqua
+load("GA.PCA.RData") #Grevillea aquifolium
+load("XA.PCA.RData") #Xanthorrhoea australis
 
-#Extract the climate data for all the cells in the climate data layer and remove missing data.
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/Map/Env.stack.3.RData")
+#Convert raster stack into data frame
+Env.stack.2.df <- na.omit(extract(Env.stack.2, 1:ncell(Env.stack.2), df = TRUE))
 
-#Convert rasters into data frames
-Env.stack.3.df <- na.omit(extract(Env.stack.3, 1:ncell(Env.stack.3), df = TRUE))
+#Banksia marginata vs. Callitris rhomboidea----
+BM.CR.diff.procrustes = procrustes(BM.PCA, CR.PCA, scale=TRUE, symmetrical=FALSE)
+BM.CR.resids = residuals(BM.CR.diff.procrustes)
 
-#BMvsCR----
-BM.CR.diff.procrustes.vif = procrustes(BM.PCA.vif, CR.PCA.vif, scale=TRUE, symmetrical=FALSE)
-BM.CR.resids.vif = residuals(BM.CR.diff.procrustes.vif)
-
-summary(BM.CR.resids.vif)
+summary(BM.CR.resids)
 #Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0001233 0.0036727 0.0048186 0.0051123 0.0063271 0.0249443 
 
 #Specify raster properties based on an existing one
-BM.CR.rastProc.vif <- Env.stack.3$BIO05  
+BM.CR.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-BM.CR.rastProc.vif[BM.CR.rastProc.vif != 0] <- 0.0249443  
+BM.CR.rastProc[BM.CR.rastProc != 0] <- 0.0249443  
 
 #Assign residuals to raster cells
-BM.CR.rastProc.vif[Env.stack.3.df$ID] <- BM.CR.resids.vif  
+BM.CR.rastProc[Env.stack.2.df$ID] <- BM.CR.resids  
 
 ##Map the results----
-pdf("BM.CR.ProcrustesMap.vif.pdf")
-plot(BM.CR.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("BM.CR.ProcrustesMap.pdf")
+plot(BM.CR.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. CR",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
 tmap_mode("plot")
-BM.CR.rastProc.vif.2 <-
-  tm_shape(BM.CR.rastProc.vif)+
+BM.CR.rastProc.2 <-
+  tm_shape(BM.CR.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1407,35 +1563,35 @@ BM.CR.rastProc.vif.2 <-
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(BM.CR.rastProc.vif.2, filename = "BM.CR.ProcrustesMap.vif_2.pdf")
+tmap_save(BM.CR.rastProc.2, filename = "BM.CR.ProcrustesMap_2.pdf")
 
-#BMvsEI----
-BM.EI.diff.procrustes.vif = procrustes(BM.PCA.vif, EI.PCA.vif, scale=TRUE, symmetrical=FALSE)
-BM.EI.resids.vif = residuals(BM.EI.diff.procrustes.vif)
+#Banksia marginata vs. Epacris impressa----
+BM.EI.diff.procrustes = procrustes(BM.PCA, EI.PCA, scale=TRUE, symmetrical=FALSE)
+BM.EI.resids = residuals(BM.EI.diff.procrustes)
 
-summary(BM.EI.resids.vif)
+summary(BM.EI.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0005361 0.0055550 0.0080495 0.0085714 0.0107536 0.0539762 
 
 #Specify raster properties based on an existing one
-BM.EI.rastProc.vif <- Env.stack.3$BIO05  
+BM.EI.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-BM.EI.rastProc.vif[BM.EI.rastProc.vif != 0] <- 0.0539762 
+BM.EI.rastProc[BM.EI.rastProc != 0] <- 0.0539762 
 
 #Assign residuals to raster cells
-BM.EI.rastProc.vif[Env.stack.3.df$ID] <- BM.EI.resids.vif  
+BM.EI.rastProc[Env.stack.2.df$ID] <- BM.EI.resids  
 
 ##Map the results----
-pdf("BM.EI.ProcrustesMap.vif.pdf")
-plot(BM.EI.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("BM.EI.ProcrustesMap.pdf")
+plot(BM.EI.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. EI",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
 tmap_mode("plot")
-BM.EI.rastProc.vif.2 <-
-  tm_shape(BM.EI.rastProc.vif)+
+BM.EI.rastProc.2 <-
+  tm_shape(BM.EI.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1469,35 +1625,35 @@ BM.EI.rastProc.vif.2 <-
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(BM.EI.rastProc.vif.2, filename = "BM.EI.ProcrustesMap.vif_2.pdf")
+tmap_save(BM.EI.rastProc.2, filename = "BM.EI.ProcrustesMap_2.pdf")
 
-#BMvsEO----
-BM.EO.diff.procrustes.vif = procrustes(BM.PCA.vif, EO.PCA.vif, scale=TRUE, symmetrical=FALSE)
-BM.EO.resids.vif = residuals(BM.EO.diff.procrustes.vif)
+#Banksia marginata vs. Eucalyptus obliqua----
+BM.EO.diff.procrustes = procrustes(BM.PCA, EO.PCA, scale=TRUE, symmetrical=FALSE)
+BM.EO.resids = residuals(BM.EO.diff.procrustes)
 
-summary(BM.EO.resids.vif)
+summary(BM.EO.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0002299 0.0058461 0.0077728 0.0079987 0.0096391 0.0438066 
 
 #Specify raster properties based on an existing one
-BM.EO.rastProc.vif <- Env.stack.3$BIO05  
+BM.EO.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-BM.EO.rastProc.vif[BM.EO.rastProc.vif != 0] <- 0.0438066
+BM.EO.rastProc[BM.EO.rastProc != 0] <- 0.0438066
 
 #Assign residuals to raster cells
-BM.EO.rastProc.vif[Env.stack.3.df$ID] <- BM.EO.resids.vif  
+BM.EO.rastProc[Env.stack.2.df$ID] <- BM.EO.resids  
 
 ##Map the results----
-pdf("BM.EO.ProcrustesMap.vif.pdf")
-plot(BM.EO.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("BM.EO.ProcrustesMap.pdf")
+plot(BM.EO.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. EO",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
 tmap_mode("plot")
-BM.EO.rastProc.vif.2 <-
-  tm_shape(BM.EO.rastProc.vif)+
+BM.EO.rastProc.2 <-
+  tm_shape(BM.EO.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1531,36 +1687,36 @@ BM.EO.rastProc.vif.2 <-
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(BM.EO.rastProc.vif.2, filename = "BM.EO.ProcrustesMap.vif_2.pdf")
+tmap_save(BM.EO.rastProc.2, filename = "BM.EO.ProcrustesMap_2.pdf")
 
 
-#BMvsGA----
-BM.GA.diff.procrustes.vif = procrustes(BM.PCA.vif, GA.PCA.vif, scale=TRUE, symmetrical=FALSE)
-BM.GA.resids.vif = residuals(BM.GA.diff.procrustes.vif)
+#Banksia marginata vs. Grevillea aquifolium----
+BM.GA.diff.procrustes = procrustes(BM.PCA, GA.PCA, scale=TRUE, symmetrical=FALSE)
+BM.GA.resids = residuals(BM.GA.diff.procrustes)
 
-summary(BM.GA.resids.vif)
+summary(BM.GA.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0001207 0.0037061 0.0050771 0.0052679 0.0065288 0.0167860 
 
 #Specify raster properties based on an existing one
-BM.GA.rastProc.vif <- Env.stack.3$BIO05  
+BM.GA.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-BM.GA.rastProc.vif[BM.GA.rastProc.vif != 0] <- 0.0167860 
+BM.GA.rastProc[BM.GA.rastProc != 0] <- 0.0167860 
 
 #Assign residuals to raster cells
-BM.GA.rastProc.vif[Env.stack.3.df$ID] <- BM.GA.resids.vif  
+BM.GA.rastProc[Env.stack.2.df$ID] <- BM.GA.resids  
 
 ##Map the results----
-pdf("BM.GA.ProcrustesMap.vif.pdf")
-plot(BM.GA.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("BM.GA.ProcrustesMap.pdf")
+plot(BM.GA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. GA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
 tmap_mode("plot")
-BM.GA.rastProc.vif.2 <-
-  tm_shape(BM.GA.rastProc.vif)+
+BM.GA.rastProc.2 <-
+  tm_shape(BM.GA.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1594,35 +1750,35 @@ BM.GA.rastProc.vif.2 <-
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(BM.GA.rastProc.vif.2, filename = "BM.GA.ProcrustesMap.vif_2.pdf")
+tmap_save(BM.GA.rastProc.2, filename = "BM.GA.ProcrustesMap_2.pdf")
 
-#BMvsXA----
-BM.XA.diff.procrustes.vif = procrustes(BM.PCA.vif, XA.PCA.vif, scale=TRUE, symmetrical=FALSE)
-BM.XA.resids.vif = residuals(BM.XA.diff.procrustes.vif)
+#Banksia marginata vs. Xanthorrhoea australis----
+BM.XA.diff.procrustes = procrustes(BM.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
+BM.XA.resids = residuals(BM.XA.diff.procrustes)
 
-summary(BM.XA.resids.vif)
+summary(BM.XA.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0001493 0.0036473 0.0050338 0.0052838 0.0065159 0.0314617 
 
 #Specify raster properties based on an existing one
-BM.XA.rastProc.vif <- Env.stack.3$BIO05  
+BM.XA.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-BM.XA.rastProc.vif[BM.XA.rastProc.vif != 0] <- 0.0314617
+BM.XA.rastProc[BM.XA.rastProc != 0] <- 0.0314617
 
 #Assign residuals to raster cells
-BM.XA.rastProc.vif[Env.stack.3.df$ID] <- BM.XA.resids.vif  
+BM.XA.rastProc[Env.stack.2.df$ID] <- BM.XA.resids  
 
 ##Map the results----
-pdf("BM.XA.ProcrustesMap.vif.pdf")
-plot(BM.XA.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("BM.XA.ProcrustesMap.pdf")
+plot(BM.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
 tmap_mode("plot")
-BM.XA.rastProc.vif.2 <-
-  tm_shape(BM.XA.rastProc.vif)+
+BM.XA.rastProc.2 <-
+  tm_shape(BM.XA.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1656,33 +1812,33 @@ BM.XA.rastProc.vif.2 <-
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(BM.XA.rastProc.vif.2, filename = "BM.XA.ProcrustesMap.vif_2.pdf")
+tmap_save(BM.XA.rastProc.2, filename = "BM.XA.ProcrustesMap_2.pdf")
 
-#CRvsEI----
-CR.EI.diff.procrustes.vif = procrustes(CR.PCA.vif, EI.PCA.vif, scale=TRUE, symmetrical=FALSE)
-CR.EI.resids.vif = residuals(CR.EI.diff.procrustes.vif)
+#Callitris rhomboidea vs. Epacris impressa----
+CR.EI.diff.procrustes = procrustes(CR.PCA, EI.PCA, scale=TRUE, symmetrical=FALSE)
+CR.EI.resids = residuals(CR.EI.diff.procrustes)
 
-summary(CR.EI.resids.vif)
+summary(CR.EI.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0001146 0.0043914 0.0056430 0.0065614 0.0076427 0.0339226 
 
 #Specify raster properties based on an existing one
-CR.EI.rastProc.vif <- Env.stack.3$BIO05  
+CR.EI.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-CR.EI.rastProc.vif[CR.EI.rastProc.vif != 0] <- 0.0339226
+CR.EI.rastProc[CR.EI.rastProc != 0] <- 0.0339226
 
 #Assign residuals to raster cells
-CR.EI.rastProc.vif[Env.stack.3.df$ID] <- CR.EI.resids.vif  
+CR.EI.rastProc[Env.stack.2.df$ID] <- CR.EI.resids  
 
 ##Map the results----
-pdf("CR.EI.ProcrustesMap.vif.pdf")
-plot(CR.EI.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("CR.EI.ProcrustesMap.pdf")
+plot(CR.EI.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="CR vs. EI",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-CR.EI.rastProc.vif.2 <- tm_shape(CR.EI.rastProc.vif)+
+CR.EI.rastProc.2 <- tm_shape(CR.EI.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1716,33 +1872,33 @@ CR.EI.rastProc.vif.2 <- tm_shape(CR.EI.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(CR.EI.rastProc.vif.2, filename = "CR.EI.ProcrustesMap.vif_2.pdf")
+tmap_save(CR.EI.rastProc.2, filename = "CR.EI.ProcrustesMap_2.pdf")
 
-#CRvsEO----
-CR.EO.diff.procrustes.vif = procrustes(CR.PCA.vif, EO.PCA.vif, scale=TRUE, symmetrical=FALSE)
-CR.EO.resids.vif = residuals(CR.EO.diff.procrustes.vif)
+#Callitris rhomboidea vs. Eucalyptus obliqua----
+CR.EO.diff.procrustes = procrustes(CR.PCA, EO.PCA, scale=TRUE, symmetrical=FALSE)
+CR.EO.resids = residuals(CR.EO.diff.procrustes)
 
-summary(CR.EO.resids.vif)
+summary(CR.EO.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0001084 0.0040321 0.0050256 0.0054967 0.0065065 0.0210085  
 
 #Specify raster properties based on an existing one
-CR.EO.rastProc.vif <- Env.stack.3$BIO05  
+CR.EO.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-CR.EO.rastProc.vif[CR.EO.rastProc.vif != 0] <- 0.0210085 
+CR.EO.rastProc[CR.EO.rastProc != 0] <- 0.0210085 
 
 #Assign residuals to raster cells
-CR.EO.rastProc.vif[Env.stack.3.df$ID] <- CR.EO.resids.vif  
+CR.EO.rastProc[Env.stack.2.df$ID] <- CR.EO.resids  
 
 ##Map the results----
-pdf("CR.EO.ProcrustesMap.vif.pdf")
-plot(CR.EO.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("CR.EO.ProcrustesMap.pdf")
+plot(CR.EO.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="CR vs. EO",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-CR.EO.rastProc.vif.2 <- tm_shape(CR.EO.rastProc.vif)+
+CR.EO.rastProc.2 <- tm_shape(CR.EO.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1776,33 +1932,33 @@ CR.EO.rastProc.vif.2 <- tm_shape(CR.EO.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(CR.EO.rastProc.vif.2, filename = "CR.EO.ProcrustesMap.vif_2.pdf")
+tmap_save(CR.EO.rastProc.2, filename = "CR.EO.ProcrustesMap_2.pdf")
 
-#CRvsGA----
-CR.GA.diff.procrustes.vif = procrustes(CR.PCA.vif, GA.PCA.vif, scale=TRUE, symmetrical=FALSE)
-CR.GA.resids.vif = residuals(CR.GA.diff.procrustes.vif)
+#Callitris rhomboidea vs. Grevillea aquifolium----
+CR.GA.diff.procrustes = procrustes(CR.PCA, GA.PCA, scale=TRUE, symmetrical=FALSE)
+CR.GA.resids = residuals(CR.GA.diff.procrustes)
 
-summary(CR.GA.resids.vif)
+summary(CR.GA.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #6.144e-05 2.647e-03 3.465e-03 4.456e-03 4.633e-03 3.839e-02 
 
 #Specify raster properties based on an existing one
-CR.GA.rastProc.vif <- Env.stack.3$BIO05  
+CR.GA.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-CR.GA.rastProc.vif[CR.GA.rastProc.vif != 0] <- 3.839e-02 
+CR.GA.rastProc[CR.GA.rastProc != 0] <- 3.839e-02 
 
 #Assign residuals to raster cells
-CR.GA.rastProc.vif[Env.stack.3.df$ID] <- CR.GA.resids.vif  
+CR.GA.rastProc[Env.stack.2.df$ID] <- CR.GA.resids  
 
 ##Map the results----
-pdf("CR.GA.ProcrustesMap.vif.pdf")
-plot(CR.GA.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("CR.GA.ProcrustesMap.pdf")
+plot(CR.GA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="CR vs. GA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-CR.GA.rastProc.vif.2 <- tm_shape(CR.GA.rastProc.vif)+
+CR.GA.rastProc.2 <- tm_shape(CR.GA.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1836,33 +1992,33 @@ CR.GA.rastProc.vif.2 <- tm_shape(CR.GA.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(CR.GA.rastProc.vif.2, filename = "CR.GA.ProcrustesMap.vif_2.pdf")
+tmap_save(CR.GA.rastProc.2, filename = "CR.GA.ProcrustesMap_2.pdf")
 
-#CRvsXA----
-CR.XA.diff.procrustes.vif = procrustes(CR.PCA.vif, XA.PCA.vif, scale=TRUE, symmetrical=FALSE)
-CR.XA.resids.vif = residuals(CR.XA.diff.procrustes.vif)
+#Callitris rhomboidea vs. Xanthorrhoea australis----
+CR.XA.diff.procrustes = procrustes(CR.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
+CR.XA.resids = residuals(CR.XA.diff.procrustes)
 
-summary(CR.XA.resids.vif)
+summary(CR.XA.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #6.095e-05 1.593e-03 2.105e-03 2.329e-03 2.932e-03 8.709e-03  
 
 #Specify raster properties based on an existing one
-CR.XA.rastProc.vif <- Env.stack.3$BIO05  
+CR.XA.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-CR.XA.rastProc.vif[CR.XA.rastProc.vif != 0] <- 8.709e-03
+CR.XA.rastProc[CR.XA.rastProc != 0] <- 8.709e-03
 
 #Assign residuals to raster cells
-CR.XA.rastProc.vif[Env.stack.3.df$ID] <- CR.XA.resids.vif  
+CR.XA.rastProc[Env.stack.2.df$ID] <- CR.XA.resids  
 
 ##Map the results----
-pdf("CR.XA.ProcrustesMap.vif.pdf")
-plot(CR.XA.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("CR.XA.ProcrustesMap.pdf")
+plot(CR.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="CR vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-CR.XA.rastProc.vif.2 <- tm_shape(CR.XA.rastProc.vif)+
+CR.XA.rastProc.2 <- tm_shape(CR.XA.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1896,33 +2052,33 @@ CR.XA.rastProc.vif.2 <- tm_shape(CR.XA.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(CR.XA.rastProc.vif.2, filename = "CR.XA.ProcrustesMap.vif_2.pdf")
+tmap_save(CR.XA.rastProc.2, filename = "CR.XA.ProcrustesMap_2.pdf")
 
-#EIvsEO----
-EI.EO.diff.procrustes.vif = procrustes(EI.PCA.vif, EO.PCA.vif, scale=TRUE, symmetrical=FALSE)
-EI.EO.resids.vif = residuals(EI.EO.diff.procrustes.vif)
+#Epacris impressa vs. Eucalyptus obliqua----
+EI.EO.diff.procrustes = procrustes(EI.PCA, EO.PCA, scale=TRUE, symmetrical=FALSE)
+EI.EO.resids = residuals(EI.EO.diff.procrustes)
 
-summary(EI.EO.resids.vif)
+summary(EI.EO.resids)
 #.    Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0002222 0.0046673 0.0066752 0.0074918 0.0097004 0.0323659 
 
 #Specify raster properties based on an existing one
-EI.EO.rastProc.vif <- Env.stack.3$BIO05  
+EI.EO.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-EI.EO.rastProc.vif[EI.EO.rastProc.vif != 0] <- 0.0323659  
+EI.EO.rastProc[EI.EO.rastProc != 0] <- 0.0323659  
 
 #Assign residuals to raster cells
-EI.EO.rastProc.vif[Env.stack.3.df$ID] <- EI.EO.resids.vif  
+EI.EO.rastProc[Env.stack.2.df$ID] <- EI.EO.resids  
 
 ##Map the results----
-pdf("EI.EO.ProcrustesMap.vif.pdf")
-plot(EI.EO.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("EI.EO.ProcrustesMap.pdf")
+plot(EI.EO.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EI vs. EO",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EI.EO.rastProc.vif.2 <- tm_shape(EI.EO.rastProc.vif)+
+EI.EO.rastProc.2 <- tm_shape(EI.EO.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -1956,33 +2112,33 @@ EI.EO.rastProc.vif.2 <- tm_shape(EI.EO.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(EI.EO.rastProc.vif.2, filename = "EI.EO.ProcrustesMap.vif_2.pdf")
+tmap_save(EI.EO.rastProc.2, filename = "EI.EO.ProcrustesMap_2.pdf")
 
-#EIvsGA----
-EI.GA.diff.procrustes.vif = procrustes(EI.PCA.vif, GA.PCA.vif, scale=TRUE, symmetrical=FALSE)
-EI.GA.resids.vif = residuals(EI.GA.diff.procrustes.vif)
+#Epacris impressa vs. Grevillea aquifolium----
+EI.GA.diff.procrustes = procrustes(EI.PCA, GA.PCA, scale=TRUE, symmetrical=FALSE)
+EI.GA.resids = residuals(EI.GA.diff.procrustes)
 
-summary(EI.GA.resids.vif)
+summary(EI.GA.resids)
 #    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 #0.001131 0.005222 0.008178 0.010262 0.014021 0.061290
 
 #Specify raster properties based on an existing one
-EI.GA.rastProc.vif <- Env.stack.3$BIO05  
+EI.GA.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-EI.GA.rastProc.vif[EI.GA.rastProc.vif != 0] <- 0.061290 
+EI.GA.rastProc[EI.GA.rastProc != 0] <- 0.061290 
 
 #Assign residuals to raster cells
-EI.GA.rastProc.vif[Env.stack.3.df$ID] <- EI.GA.resids.vif  
+EI.GA.rastProc[Env.stack.2.df$ID] <- EI.GA.resids  
 
 ##Map the results----
-pdf("EI.GA.ProcrustesMap.vif.pdf")
-plot(EI.GA.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("EI.GA.ProcrustesMap.pdf")
+plot(EI.GA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EI vs. GA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EI.GA.rastProc.vif.2 <- tm_shape(EI.GA.rastProc.vif)+
+EI.GA.rastProc.2 <- tm_shape(EI.GA.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -2016,33 +2172,33 @@ EI.GA.rastProc.vif.2 <- tm_shape(EI.GA.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(EI.GA.rastProc.vif.2, filename = "EI.GA.ProcrustesMap.vif_2.pdf")
+tmap_save(EI.GA.rastProc.2, filename = "EI.GA.ProcrustesMap_2.pdf")
 
-#EIvsXA----
-EI.XA.diff.procrustes.vif = procrustes(EI.PCA.vif, XA.PCA.vif, scale=TRUE, symmetrical=FALSE)
-EI.XA.resids.vif = residuals(EI.XA.diff.procrustes.vif)
+#Epacris impressa vs. Xanthorrhoea australis----
+EI.XA.diff.procrustes = procrustes(EI.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
+EI.XA.resids = residuals(EI.XA.diff.procrustes)
 
-summary(EI.XA.resids.vif)
+summary(EI.XA.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0001716 0.0061360 0.0082718 0.0091430 0.0114723 0.0315131 
 
 #Specify raster properties based on an existing one
-EI.XA.rastProc.vif <- Env.stack.3$BIO05  
+EI.XA.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-EI.XA.rastProc.vif[EI.XA.rastProc.vif != 0] <- 0.0315131  
+EI.XA.rastProc[EI.XA.rastProc != 0] <- 0.0315131  
 
 #Assign residuals to raster cells
-EI.XA.rastProc.vif[Env.stack.3.df$ID] <- EI.XA.resids.vif  
+EI.XA.rastProc[Env.stack.2.df$ID] <- EI.XA.resids  
 
 ##Map the results----
-pdf("EI.XA.ProcrustesMap.vif.pdf")
-plot(EI.XA.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("EI.XA.ProcrustesMap.pdf")
+plot(EI.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EI vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EI.XA.rastProc.vif.2 <- tm_shape(EI.XA.rastProc.vif)+
+EI.XA.rastProc.2 <- tm_shape(EI.XA.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -2076,33 +2232,33 @@ EI.XA.rastProc.vif.2 <- tm_shape(EI.XA.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(EI.XA.rastProc.vif.2, filename = "EI.XA.ProcrustesMap.vif_2.pdf")
+tmap_save(EI.XA.rastProc.2, filename = "EI.XA.ProcrustesMap_2.pdf")
 
-#EOvsGA----
-EO.GA.diff.procrustes.vif = procrustes(EO.PCA.vif, GA.PCA.vif, scale=TRUE, symmetrical=FALSE)
-EO.GA.resids.vif = residuals(EO.GA.diff.procrustes.vif)
+#Eucalyptus obliqua vs. Grevillea aquifolium----
+EO.GA.diff.procrustes = procrustes(EO.PCA, GA.PCA, scale=TRUE, symmetrical=FALSE)
+EO.GA.resids = residuals(EO.GA.diff.procrustes)
 
-summary(EO.GA.resids.vif)
+summary(EO.GA.resids)
 #Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0002381 0.0057698 0.0087426 0.0105239 0.0145557 0.0587638
 
 #Specify raster properties based on an existing one
-EO.GA.rastProc.vif <- Env.stack.3$BIO05  
+EO.GA.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-EO.GA.rastProc.vif[EO.GA.rastProc.vif != 0] <- 0.0587638
+EO.GA.rastProc[EO.GA.rastProc != 0] <- 0.0587638
 
 #Assign residuals to raster cells
-EO.GA.rastProc.vif[Env.stack.3.df$ID] <- EO.GA.resids.vif  
+EO.GA.rastProc[Env.stack.2.df$ID] <- EO.GA.resids  
 
 ##Map the results----
-pdf("EO.GA.ProcrustesMap.vif.pdf")
-plot(EO.GA.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("EO.GA.ProcrustesMap.pdf")
+plot(EO.GA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EO vs. GA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EO.GA.rastProc.vif.2 <- tm_shape(EO.GA.rastProc.vif)+
+EO.GA.rastProc.2 <- tm_shape(EO.GA.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -2136,33 +2292,33 @@ EO.GA.rastProc.vif.2 <- tm_shape(EO.GA.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(EO.GA.rastProc.vif.2, filename = "EO.GA.ProcrustesMap.vif_2.pdf")
+tmap_save(EO.GA.rastProc.2, filename = "EO.GA.ProcrustesMap_2.pdf")
 
-#EOvsXA----
-EO.XA.diff.procrustes.vif = procrustes(EO.PCA.vif, XA.PCA.vif, scale=TRUE, symmetrical=FALSE)
-EO.XA.resids.vif = residuals(EO.XA.diff.procrustes.vif)
+#Eucalyptus obliqua vs. Xanthorrhoea australis----
+EO.XA.diff.procrustes = procrustes(EO.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
+EO.XA.resids = residuals(EO.XA.diff.procrustes)
 
-summary(EO.XA.resids.vif)
+summary(EO.XA.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #0.0001908 0.0060101 0.0077643 0.0079720 0.0094949 0.0181932 
 
 #Specify raster properties based on an existing one
-EO.XA.rastProc.vif <- Env.stack.3$BIO05  
+EO.XA.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-EO.XA.rastProc.vif[EO.XA.rastProc.vif != 0] <- 0.0181932
+EO.XA.rastProc[EO.XA.rastProc != 0] <- 0.0181932
 
 #Assign residuals to raster cells
-EO.XA.rastProc.vif[Env.stack.3.df$ID] <- EO.XA.resids.vif  
+EO.XA.rastProc[Env.stack.2.df$ID] <- EO.XA.resids  
 
 ##Map the results----
-pdf("EO.XA.ProcrustesMap.vif.pdf")
-plot(EO.XA.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("EO.XA.ProcrustesMap.pdf")
+plot(EO.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EO vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EO.XA.rastProc.vif.2 <- tm_shape(EO.XA.rastProc.vif)+
+EO.XA.rastProc.2 <- tm_shape(EO.XA.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -2196,33 +2352,33 @@ EO.XA.rastProc.vif.2 <- tm_shape(EO.XA.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(EO.XA.rastProc.vif.2, filename = "EO.XA.ProcrustesMap.vif_2.pdf")
+tmap_save(EO.XA.rastProc.2, filename = "EO.XA.ProcrustesMap_2.pdf")
 
-#GAvsXA----
-GA.XA.diff.procrustes.vif = procrustes(GA.PCA.vif, XA.PCA.vif, scale=TRUE, symmetrical=FALSE)
-GA.XA.resids.vif = residuals(GA.XA.diff.procrustes.vif)
+#Grevillea aquifolium vs. Xanthorrhoea australis----
+GA.XA.diff.procrustes = procrustes(GA.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
+GA.XA.resids = residuals(GA.XA.diff.procrustes)
 
-summary(GA.XA.resids.vif)
+summary(GA.XA.resids)
 #     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 #8.052e-05 2.607e-03 3.960e-03 4.847e-03 5.624e-03 3.742e-02 
 
 #Specify raster properties based on an existing one
-GA.XA.rastProc.vif <- Env.stack.3$BIO05  
+GA.XA.rastProc <- Env.stack.2$BIO05  
 
 # Make all non-zero values in mask = 0.015
-GA.XA.rastProc.vif[GA.XA.rastProc.vif != 0] <- 3.742e-02 
+GA.XA.rastProc[GA.XA.rastProc != 0] <- 3.742e-02 
 
 #Assign residuals to raster cells
-GA.XA.rastProc.vif[Env.stack.3.df$ID] <- GA.XA.resids.vif  
+GA.XA.rastProc[Env.stack.2.df$ID] <- GA.XA.resids  
 
 ##Map the results----
-pdf("GA.XA.ProcrustesMap.vif.pdf")
-plot(GA.XA.rastProc.vif, col = sequential_hcl(23, "Lajolla"),
+pdf("GA.XA.ProcrustesMap.pdf")
+plot(GA.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="GA vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-GA.XA.rastProc.vif.2 <- tm_shape(GA.XA.rastProc.vif)+
+GA.XA.rastProc.2 <- tm_shape(GA.XA.rastProc)+
   tm_raster(style = 'cont',
             n=6, 
             palette= "-RdGy",
@@ -2256,15 +2412,13 @@ GA.XA.rastProc.vif.2 <- tm_shape(GA.XA.rastProc.vif)+
             title.position = c("right", "center"), 
             inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(GA.XA.rastProc.vif.2, filename = "GA.XA.ProcrustesMap.vif_2.pdf")
+tmap_save(GA.XA.rastProc.2, filename = "GA.XA.ProcrustesMap_2.pdf")
 
 #PLot procrustes residuals across species----
 
-rastProc <- stack(CR.XA.rastProc.vif, BM.GA.rastProc.vif, EO.XA.rastProc.vif, CR.EO.rastProc.vif, BM.CR.rastProc.vif, 
-                  BM.XA.rastProc.vif, EI.XA.rastProc.vif, EI.EO.rastProc.vif, CR.EI.rastProc.vif, GA.XA.rastProc.vif, 
-                  CR.GA.rastProc.vif, BM.EO.rastProc.vif, BM.EI.rastProc.vif, EO.GA.rastProc.vif, EI.GA.rastProc.vif)
-
-gnp <- st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Shapefiles/Grampians_W/Grampians_Wh_2.shp")
+rastProc <- stack(CR.XA.rastProc, BM.GA.rastProc, EO.XA.rastProc, CR.EO.rastProc, BM.CR.rastProc, 
+                  BM.XA.rastProc, EI.XA.rastProc, EI.EO.rastProc, CR.EI.rastProc, GA.XA.rastProc, 
+                  CR.GA.rastProc, BM.EO.rastProc, BM.EI.rastProc, EO.GA.rastProc, EI.GA.rastProc)
 
 tmap_mode("plot")
 rastProc.spp <- 
@@ -2291,8 +2445,8 @@ rastProc.spp <-
                              "BA. vs. XA","EP. vs. XA","EP. vs. EU","CA. vs. EP","GR. vs. XA", 
                              "CA. vs. GR","BA. vs. EU","BA. vs. EP","EU. vs. GR","EP. vs. GR")) 
 
-tmap_save(rastProc.spp, filename = "Procrustes_map_spp_vif_2_scaled.pdf")
-#tmap_save(rastProc.spp, filename = "Procrustes_map_spp_vif_2.pdf")
+tmap_save(rastProc.spp, filename = "Procrustes_map_spp_2_scaled.pdf")
+#tmap_save(rastProc.spp, filename = "Procrustes_map_spp_2.pdf")
 ```
 
 
