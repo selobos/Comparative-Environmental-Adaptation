@@ -1488,7 +1488,7 @@ save(XA.rgbmap, file="XA.rgbmap.Rdata")
 ```
 
 Procrustes residuals (Figure 4)
-```{r Procrustes residuals}
+```{r }
 #Load PCA objects for all species
 load("BM.PCA.RData") #Banksia marginata
 load("CR.PCA.RData") #Callitris rhomboidea
