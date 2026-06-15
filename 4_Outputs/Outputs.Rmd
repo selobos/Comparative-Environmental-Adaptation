@@ -5,7 +5,7 @@ date: "June, 20267"
 output: html_document
 ---
 
-```{r include = TRUE, message=FALSE, eval = FALSE} 
+```{r include = TRUE, message=FALSE, eval = FALSE}  
 #Code adapted from: van Rensburg et al. (2018). https://doi.org/10.1101/427872
 #                   Luqman et al. (2023). https://doi.org/10.1038/s41467-023-36631-9
 #                   Gallegos et al. (2023). https://doi.org/10.1111/mec.16848
@@ -170,7 +170,7 @@ ggsave("GF_CI_spp.pdf", width = 8, height = 7, dpi = 300)
 ```
 
 Mapping putative adaptive variation across geographic space (Figure 3)
-```{r }
+```{r Banksia marginata}
 #Load env. raster stack
 load("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/Env.stack.2.RData")
 
@@ -178,10 +178,7 @@ Env.stack.2.grid <- data.frame(TWI = values(Env.stack.2[["TWI"]]),
                                AVP = values(Env.stack.2[["AVP"]]), 
                                pHc = values(Env.stack.2[["pHc"]]), 
                                BIO05 = values(Env.stack.2[["BIO05"]]))
-```
 
-Project gradient forest model in space
-```{r Banksia marginata}
 #Transform gradient forest predictions
 ban.vars <- names(importance(ban.BP.lfmm.GF))
 BM.grid.pre <- predict(ban.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), ban.vars])
