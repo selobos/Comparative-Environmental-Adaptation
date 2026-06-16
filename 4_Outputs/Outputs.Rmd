@@ -82,13 +82,10 @@ colnames(R.sq.alldatasets) <- heatmap.col.names
 R.sq.all.melt <- melt(R.sq.alldatasets)  #melt for ggplot heatmap
 R.sq.all.melt <- R.sq.all.melt[order(R.sq.all.melt$Var1),] #order by predictor variable
 write.csv(R.sq.all.melt, file="Heatmap.R.sq.all.melt.spp.csv")
-
 #Set colour pallete
 pal7 <- colorRampPalette(brewer.pal(9,"Blues"))(100)
 
 #Plot
-pal7 <- colorRampPalette(brewer.pal(9,"Blues"))(100)
-
 ggplot(R.sq.all.melt, aes(x=Var2, y=fct_inorder(Var1), fill=value)) + 
   coord_equal() +
   ylab('Environmental variables') + 
@@ -208,10 +205,10 @@ BM.vec <- ban.vars
 BM.lv <- length(BM.vec)
 BM.vind <- rownames(BM.PCA$rotation) %in% BM.vec
 scal <- 20
-BM.xrng <- range(BM.PCA.vif$x[, 1], BM.PCA.vif$rotation[, 1]/scal) * 1.1
-BM.yrng <- range(BM.PCA.vif$x[, 2], BM.PCA.vif$rotation[, 2]/scal) * 1.1
-BM.trns_site <- predict(ban.BP.lfmm.GF.vif)
-BM.PCA.sites <- predict(BM.PCA.vif, BM.trns_site[, ban.vars])
+BM.xrng <- range(BM.PCA$x[, 1], BM.PCA$rotation[, 1]/scal) * 1.1
+BM.yrng <- range(BM.PCA$x[, 2], BM.PCA$rotation[, 2]/scal) * 1.1
+BM.trns_site <- predict(ban.BP.lfmm.GF)
+BM.PCA.sites <- predict(BM.PCA, BM.trns_site[, ban.vars])
 jit <- 0.001
 
 write.csv(BM.PCA.sites, file="BM.PCA.sites.csv")
@@ -1043,9 +1040,9 @@ save(GA.rgbmap, file="GA.rgbmap.Rdata")
 ```
 
 ```{r Grevillea aquifolium}
-##load GF object (gre.BP.lfmm.GF.vif) 
+##load GF object (gre.BP.lfmm.GF) 
 
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/GA/vif/GA_GF_BP_LF_VIF.RData") 
+load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/GA/GA_GF_BP_LF.RData") 
 
 #PCA of the transformed grid for plotting in RGB palette}
 
@@ -1055,13 +1052,13 @@ load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Exper
 #Reference: https://github.com/hirzi/RhEA/blob/main/Gradient%20forest%20and%20glacial%20genomic%20offset/GradientForest_GlacialGenomicOffset.R#L361
 
 # Transform variables by predicting with GF model
-gre.vars.vif <- names(importance(gre.BP.lfmm.GF.vif))
-GA.grid.pre.vif <- predict(gre.BP.lfmm.GF.vif, Env.stack.2.grid[complete.cases(Env.stack.2.grid), gre.vars.vif]) # need to get rid of NA rows or an error pops up
+gre.vars <- names(importance(gre.BP.lfmm.GF))
+GA.grid.pre <- predict(gre.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), gre.vars]) # need to get rid of NA rows or an error pops up
 
-# GA.PCA.vif of the transformed grid for plotting in RGB palette
-GA.PCA.vif <- prcomp(na.omit(GA.grid.pre.vif), center=TRUE, scale.=FALSE)
-save(GA.PCA.vif, file="GA.PCA.vif.RData")
-GA.pcs.vif.full.gf.vif <- GA.PCA.vif # Output for ensemble model generation
+# GA.PCA of the transformed grid for plotting in RGB palette
+GA.PCA <- prcomp(na.omit(GA.grid.pre), center=TRUE, scale.=FALSE)
+save(GA.PCA, file="GA.PCA.RData")
+GA.pcs.full.gf <- GA.PCA # Output for ensemble model generation
 #Standard deviations (1, .., p=4):
 #  [1] 0.014744988 0.010031450 0.005660944 0.004007094
 
@@ -1072,55 +1069,55 @@ GA.pcs.vif.full.gf.vif <- GA.PCA.vif # Output for ensemble model generation
 #pHc   -0.3742612 -0.77379302  0.17959229  0.47845538
 #BIO05 -0.3046356 -0.37418111  0.07732362 -0.87247160
 
-summary(GA.PCA.vif)
+summary(GA.PCA)
 #Importance of components:
 #                           PC1     PC2      PC3      PC4
 #Standard deviation     0.01474 0.01003 0.005661 0.004007
 #Proportion of Variance 0.59379 0.27483 0.087520 0.043850
 #Cumulative Proportion  0.59379 0.86862 0.956150 1.000000
 
-GA.a1.vif <- GA.PCA.vif$x[, 1]
-GA.a2.vif <- GA.PCA.vif$x[, 2]
-GA.a3.vif <- GA.PCA.vif$x[, 3]
-GA.r.vif <- GA.a1.vif + GA.a2.vif
-GA.g.vif <- -GA.a2.vif
-GA.b.vif <- GA.a3.vif + GA.a2.vif - GA.a1.vif
+GA.a1 <- GA.PCA$x[, 1]
+GA.a2 <- GA.PCA$x[, 2]
+GA.a3 <- GA.PCA$x[, 3]
+GA.r <- GA.a1 + GA.a2
+GA.g <- -GA.a2
+GA.b <- GA.a3 + GA.a2 - GA.a1
 # scale colors
-GA.r.vif <- (GA.r.vif - min(GA.r.vif))/(max(GA.r.vif) - min(GA.r.vif)) * 255
-GA.g.vif <- (GA.g.vif - min(GA.g.vif))/(max(GA.g.vif) - min(GA.g.vif)) * 255
-GA.b.vif <- (GA.b.vif - min(GA.b.vif))/(max(GA.b.vif) - min(GA.b.vif)) * 255
+GA.r <- (GA.r - min(GA.r))/(max(GA.r) - min(GA.r)) * 255
+GA.g <- (GA.g - min(GA.g))/(max(GA.g) - min(GA.g)) * 255
+GA.b <- (GA.b - min(GA.b))/(max(GA.b) - min(GA.b)) * 255
 
-# Plot predicted genetic turnover in genetic space (GA.PCA.vif biplot)
-GA.nvs.vif <- dim(GA.PCA.vif$rotation)[1]
-GA.vec.vif <- gre.vars.vif
-GA.lv.vif <- length(GA.vec.vif)
-GA.vind.vif <- rownames(GA.PCA.vif$rotation) %in% GA.vec.vif
+# Plot predicted genetic turnover in genetic space (GA.PCA biplot)
+GA.nvs <- dim(GA.PCA$rotation)[1]
+GA.vec <- gre.vars
+GA.lv <- length(GA.vec)
+GA.vind <- rownames(GA.PCA$rotation) %in% GA.vec
 scal <- 20
-GA.xrng.vif <- range(GA.PCA.vif$x[, 1], GA.PCA.vif$rotation[, 1]/scal) * 1.1
-GA.yrng.vif <- range(GA.PCA.vif$x[, 2], GA.PCA.vif$rotation[, 2]/scal) * 1.1
-GA.trns_site.vif <- predict(gre.BP.lfmm.GF.vif)
-GA.PCA.vif.sites <- predict(GA.PCA.vif, GA.trns_site.vif[, gre.vars.vif])
+GA.xrng <- range(GA.PCA$x[, 1], GA.PCA$rotation[, 1]/scal) * 1.1
+GA.yrng <- range(GA.PCA$x[, 2], GA.PCA$rotation[, 2]/scal) * 1.1
+GA.trns_site <- predict(gre.BP.lfmm.GF)
+GA.PCA.sites <- predict(GA.PCA, GA.trns_site[, gre.vars])
 jit <- 0.001
 
-#write.csv(GA.PCA.vif.sites, file="GA.PCA.vif.sites.csv")
-GA.PCA.vif.sites_names <- read.csv("GA.PCA.vif.sites.csv") 
+#write.csv(GA.PCA.sites, file="GA.PCA.sites.csv")
+GA.PCA.sites_names <- read.csv("GA.PCA.sites.csv") 
 
-#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_labels_vif.tiff", width=1500, height=1300, res=300)
-#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_vec_vif.tiff", width=1500, height=1300, res=300)
-tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_vif.tiff", width=1500, height=1300, res=300)
+#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_labels.tiff", width=1500, height=1300, res=300)
+#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_vec.tiff", width=1500, height=1300, res=300)
+tiff("GA_Biplot_biologigre_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
-plot((GA.PCA.vif$x[, 1:2]), xlim = GA.xrng.vif, ylim = GA.yrng.vif, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
-     pch = ".", cex = 4, col = rgb(GA.r.vif, GA.g.vif, GA.b.vif, max = 255), 
+plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
+     pch = ".", cex = 4, col = rgb(GA.r, GA.g, GA.b, max = 255), 
      asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
 #rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
 #par(new = TRUE)
-#plot((GA.PCA.vif$x[, 1:2]), xlim = GA.xrng.vif, ylim = GA.yrng.vif, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
+#plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
 #     pch = ".", cex = 4, col = rgb(GA.r, GA.g, GA.b, max = 255), 
 #     asp = 1, cex.lab = 2, cex.axis = 1)
 #abline(h = 0, v = 0, col = "grey70", lwd = 1)
 #axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
 #axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
-points(GA.PCA.vif.sites_names[, 3:4],  pch = c(25,
+points(GA.PCA.sites_names[, 3:4],  pch = c(25,
                                            24,
                                            22,
                                            24,
@@ -1151,53 +1148,53 @@ points(GA.PCA.vif.sites_names[, 3:4],  pch = c(25,
                                            22), lwd = 0.7, cex =1, 
        bg = NA, 
        col = "black")
-arrows(rep(0, GA.lv.vif), rep(0, GA.lv.vif), 
-       GA.PCA.vif$rotation[GA.vec.vif, 1]/scal, 
-       GA.PCA.vif$rotation[GA.vec.vif, 2]/scal, 
+arrows(rep(0, GA.lv), rep(0, GA.lv), 
+       GA.PCA$rotation[GA.vec, 1]/scal, 
+       GA.PCA$rotation[GA.vec, 2]/scal, 
        length = 0.1, lwd = 3.5, angle = 20, 
        col = "black")
-arrows(rep(0, GA.lv.vif), rep(0, GA.lv.vif), 
-       GA.PCA.vif$rotation[GA.vec.vif, 1]/scal, 
-       GA.PCA.vif$rotation[GA.vec.vif, 2]/scal, 
+arrows(rep(0, GA.lv), rep(0, GA.lv), 
+       GA.PCA$rotation[GA.vec, 1]/scal, 
+       GA.PCA$rotation[GA.vec, 2]/scal, 
        length = 0.1, lwd = 2, angle = 20, 
        col = c("#B7B7B7","#B78560","#43BA8F","#CC79A7"))
-text(GA.PCA.vif$rotation[GA.vec.vif, 1]/scal + jit * sign(GA.PCA.vif$rotation[GA.vec.vif, 1]), 
-     GA.PCA.vif$rotation[GA.vec.vif, 2]/scal + jit * sign(GA.PCA.vif$rotation[GA.vec.vif, 2]), 
+text(GA.PCA$rotation[GA.vec, 1]/scal + jit * sign(GA.PCA$rotation[GA.vec, 1]), 
+     GA.PCA$rotation[GA.vec, 2]/scal + jit * sign(GA.PCA$rotation[GA.vec, 2]), 
      labels = NULL,  cex = 0.5, pos = 2)
-#labels = GA.vec.vif,  cex = 0.5, pos = 2)
+#labels = GA.vec,  cex = 0.5, pos = 2)
 # Light gray background
-#addTextLabels(GA.PCA.vif.sites_names[, 3], 
-#GA.PCA.vif.sites_names[, 4], 
-#GA.PCA.vif.sites_names$Pop ,
+#addTextLabels(GA.PCA.sites_names[, 3], 
+#GA.PCA.sites_names[, 4], 
+#GA.PCA.sites_names$Pop ,
 #col.background=rgb(0,0,0,0.75),
 #cex.label=0.7, col.label="white")
 dev.off()
 
 # Plot (map) predicted genetic turnover in geographic space
-# *GA.PCA.vif is remvoing NAs, so the GA.vec.viftor is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
+# *GA.PCA is remvoing NAs, so the GA.vector is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
 Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
 Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
-GA.pcs.vif <- as.data.frame(GA.PCA.vif$x)
-GA.pcs.vif$x <- Env.stack.2.grid$x[Env.stack.2.grid$nas]
-GA.pcs.vif <- merge(GA.pcs.vif, Env.stack.2.grid, by = "x", all = TRUE)
-GA.pcs.vif$r <- GA.pcs.vif$PC1 + GA.pcs.vif$PC2
-GA.pcs.vif$g <- -GA.pcs.vif$PC2
-GA.pcs.vif$b <- GA.pcs.vif$PC3 + GA.pcs.vif$PC2 - GA.pcs.vif$PC1
-GA.pcs.vif$r <- (GA.pcs.vif$r - min(GA.pcs.vif$r, na.rm = TRUE))/(max(GA.pcs.vif$r, na.rm = TRUE) - min(GA.pcs.vif$r, na.rm = TRUE)) * 255
-GA.pcs.vif$g <- (GA.pcs.vif$g - min(GA.pcs.vif$g, na.rm = TRUE))/(max(GA.pcs.vif$g, na.rm = TRUE) - min(GA.pcs.vif$g, na.rm = TRUE)) * 255
-GA.pcs.vif$b <- (GA.pcs.vif$b - min(GA.pcs.vif$b, na.rm = TRUE))/(max(GA.pcs.vif$b, na.rm = TRUE) - min(GA.pcs.vif$b, na.rm = TRUE)) * 255
-GA.raster.r.vif <- GA.raster.g.vif <- GA.raster.b.vif <- Env.stack.2[[1]]
-values(GA.raster.r.vif) <- GA.pcs.vif$r
-values(GA.raster.g.vif) <- GA.pcs.vif$g
-values(GA.raster.b.vif) <- GA.pcs.vif$b
-GA.rgbmap.vif <- stack(GA.raster.r.vif, GA.raster.g.vif, GA.raster.b.vif)
+GA.pcs <- as.data.frame(GA.PCA$x)
+GA.pcs$x <- Env.stack.2.grid$x[Env.stack.2.grid$nas]
+GA.pcs <- merge(GA.pcs, Env.stack.2.grid, by = "x", all = TRUE)
+GA.pcs$r <- GA.pcs$PC1 + GA.pcs$PC2
+GA.pcs$g <- -GA.pcs$PC2
+GA.pcs$b <- GA.pcs$PC3 + GA.pcs$PC2 - GA.pcs$PC1
+GA.pcs$r <- (GA.pcs$r - min(GA.pcs$r, na.rm = TRUE))/(max(GA.pcs$r, na.rm = TRUE) - min(GA.pcs$r, na.rm = TRUE)) * 255
+GA.pcs$g <- (GA.pcs$g - min(GA.pcs$g, na.rm = TRUE))/(max(GA.pcs$g, na.rm = TRUE) - min(GA.pcs$g, na.rm = TRUE)) * 255
+GA.pcs$b <- (GA.pcs$b - min(GA.pcs$b, na.rm = TRUE))/(max(GA.pcs$b, na.rm = TRUE) - min(GA.pcs$b, na.rm = TRUE)) * 255
+GA.raster.r <- GA.raster.g <- GA.raster.b <- Env.stack.2[[1]]
+values(GA.raster.r) <- GA.pcs$r
+values(GA.raster.g) <- GA.pcs$g
+values(GA.raster.b) <- GA.pcs$b
+GA.rgbmap <- stack(GA.raster.r, GA.raster.g, GA.raster.b)
 
 ###Map spatial pattern of predicted genomic composition----
 #Load geo coords
 GA.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/GA/GA_coords_Ch2.csv")
 
-png("GA_Mapping_geographic_space_GF_BP_LF_vif.png", width=800, height=1550, res=200)
-plotRGB(GA.rgbmap.vif)
+png("GA_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
+plotRGB(GA.rgbmap)
 points(GA.coords$lon, GA.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
 dev.off()
 
@@ -1214,10 +1211,10 @@ GA.coords.shp$Pop <- factor(
   levels = unique(GA.coords.shp$Pop)
 )
 
-GA.rgbmap.vif.spat <- rast(GA.rgbmap.vif)
+GA.rgbmap.spat <- rast(GA.rgbmap)
 
 ggplot() +
-  geom_spatraster_rgb(data = GA.rgbmap.vif.spat) +
+  geom_spatraster_rgb(data = GA.rgbmap.spat) +
   geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
   geom_point(data = GA.coords.shp, aes(x = lon, y = lat, shape = Pop),
              size = 10, colour = "black", fill = "white",stroke = 1.5) +
@@ -1259,9 +1256,9 @@ ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) 
 
-ggsave(file = "GA_GF_map_vif.pdf", width = 12, height = 12, dpi = 300)
+ggsave(file = "GA_GF_map.pdf", width = 12, height = 12, dpi = 300)
 
-save(GA.rgbmap.vif, file="GA.rgbmap.vif.Rdata")
+save(GA.rgbmap, file="GA.rgbmap.Rdata")
 ```
 
 ```{r Xanthorrhoea australis}
@@ -1503,916 +1500,335 @@ Env.stack.2.df <- na.omit(extract(Env.stack.2, 1:ncell(Env.stack.2), df = TRUE))
 #Banksia marginata vs. Callitris rhomboidea----
 BM.CR.diff.procrustes = procrustes(BM.PCA, CR.PCA, scale=TRUE, symmetrical=FALSE)
 BM.CR.resids = residuals(BM.CR.diff.procrustes)
-
 summary(BM.CR.resids)
-#Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0001233 0.0036727 0.0048186 0.0051123 0.0063271 0.0249443 
 
 #Specify raster properties based on an existing one
 BM.CR.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 BM.CR.rastProc[BM.CR.rastProc != 0] <- 0.0249443  
 
 #Assign residuals to raster cells
 BM.CR.rastProc[Env.stack.2.df$ID] <- BM.CR.resids  
 
-##Map the results----
+##Map the results
 pdf("BM.CR.ProcrustesMap.pdf")
 plot(BM.CR.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. CR",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-tmap_mode("plot")
-BM.CR.rastProc.2 <-
-  tm_shape(BM.CR.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(BM.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 22,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(CR.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "BM vs. CR", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(BM.CR.rastProc.2, filename = "BM.CR.ProcrustesMap_2.pdf")
 
 #Banksia marginata vs. Epacris impressa----
 BM.EI.diff.procrustes = procrustes(BM.PCA, EI.PCA, scale=TRUE, symmetrical=FALSE)
 BM.EI.resids = residuals(BM.EI.diff.procrustes)
-
 summary(BM.EI.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0005361 0.0055550 0.0080495 0.0085714 0.0107536 0.0539762 
 
 #Specify raster properties based on an existing one
 BM.EI.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 BM.EI.rastProc[BM.EI.rastProc != 0] <- 0.0539762 
 
 #Assign residuals to raster cells
 BM.EI.rastProc[Env.stack.2.df$ID] <- BM.EI.resids  
 
-##Map the results----
+##Map the results
 pdf("BM.EI.ProcrustesMap.pdf")
 plot(BM.EI.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. EI",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-tmap_mode("plot")
-BM.EI.rastProc.2 <-
-  tm_shape(BM.EI.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(BM.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 22,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(EI.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "BM vs. EI", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(BM.EI.rastProc.2, filename = "BM.EI.ProcrustesMap_2.pdf")
 
 #Banksia marginata vs. Eucalyptus obliqua----
 BM.EO.diff.procrustes = procrustes(BM.PCA, EO.PCA, scale=TRUE, symmetrical=FALSE)
 BM.EO.resids = residuals(BM.EO.diff.procrustes)
-
 summary(BM.EO.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0002299 0.0058461 0.0077728 0.0079987 0.0096391 0.0438066 
 
 #Specify raster properties based on an existing one
 BM.EO.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 BM.EO.rastProc[BM.EO.rastProc != 0] <- 0.0438066
 
 #Assign residuals to raster cells
 BM.EO.rastProc[Env.stack.2.df$ID] <- BM.EO.resids  
 
-##Map the results----
+##Map the results
 pdf("BM.EO.ProcrustesMap.pdf")
 plot(BM.EO.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. EO",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-tmap_mode("plot")
-BM.EO.rastProc.2 <-
-  tm_shape(BM.EO.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(BM.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 22,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(EO.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 23,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "BM vs. EO", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(BM.EO.rastProc.2, filename = "BM.EO.ProcrustesMap_2.pdf")
-
 
 #Banksia marginata vs. Grevillea aquifolium----
 BM.GA.diff.procrustes = procrustes(BM.PCA, GA.PCA, scale=TRUE, symmetrical=FALSE)
 BM.GA.resids = residuals(BM.GA.diff.procrustes)
-
 summary(BM.GA.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0001207 0.0037061 0.0050771 0.0052679 0.0065288 0.0167860 
 
 #Specify raster properties based on an existing one
 BM.GA.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 BM.GA.rastProc[BM.GA.rastProc != 0] <- 0.0167860 
 
 #Assign residuals to raster cells
 BM.GA.rastProc[Env.stack.2.df$ID] <- BM.GA.resids  
 
-##Map the results----
+##Map the results
 pdf("BM.GA.ProcrustesMap.pdf")
 plot(BM.GA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. GA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-tmap_mode("plot")
-BM.GA.rastProc.2 <-
-  tm_shape(BM.GA.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(BM.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 22,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(GA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "BM vs. GA", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(BM.GA.rastProc.2, filename = "BM.GA.ProcrustesMap_2.pdf")
 
 #Banksia marginata vs. Xanthorrhoea australis----
 BM.XA.diff.procrustes = procrustes(BM.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
 BM.XA.resids = residuals(BM.XA.diff.procrustes)
-
 summary(BM.XA.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0001493 0.0036473 0.0050338 0.0052838 0.0065159 0.0314617 
 
 #Specify raster properties based on an existing one
 BM.XA.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 BM.XA.rastProc[BM.XA.rastProc != 0] <- 0.0314617
 
 #Assign residuals to raster cells
 BM.XA.rastProc[Env.stack.2.df$ID] <- BM.XA.resids  
 
-##Map the results----
+##Map the results
 pdf("BM.XA.ProcrustesMap.pdf")
 plot(BM.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="BM vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-tmap_mode("plot")
-BM.XA.rastProc.2 <-
-  tm_shape(BM.XA.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(BM.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 22,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(XA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "BM vs. XA", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(BM.XA.rastProc.2, filename = "BM.XA.ProcrustesMap_2.pdf")
 
 #Callitris rhomboidea vs. Epacris impressa----
 CR.EI.diff.procrustes = procrustes(CR.PCA, EI.PCA, scale=TRUE, symmetrical=FALSE)
 CR.EI.resids = residuals(CR.EI.diff.procrustes)
-
 summary(CR.EI.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0001146 0.0043914 0.0056430 0.0065614 0.0076427 0.0339226 
 
 #Specify raster properties based on an existing one
 CR.EI.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 CR.EI.rastProc[CR.EI.rastProc != 0] <- 0.0339226
 
 #Assign residuals to raster cells
 CR.EI.rastProc[Env.stack.2.df$ID] <- CR.EI.resids  
 
-##Map the results----
+##Map the results
 pdf("CR.EI.ProcrustesMap.pdf")
 plot(CR.EI.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="CR vs. EI",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-CR.EI.rastProc.2 <- tm_shape(CR.EI.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(CR.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(EI.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "CR vs. EI", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(CR.EI.rastProc.2, filename = "CR.EI.ProcrustesMap_2.pdf")
 
 #Callitris rhomboidea vs. Eucalyptus obliqua----
 CR.EO.diff.procrustes = procrustes(CR.PCA, EO.PCA, scale=TRUE, symmetrical=FALSE)
 CR.EO.resids = residuals(CR.EO.diff.procrustes)
-
 summary(CR.EO.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0001084 0.0040321 0.0050256 0.0054967 0.0065065 0.0210085  
 
 #Specify raster properties based on an existing one
 CR.EO.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 CR.EO.rastProc[CR.EO.rastProc != 0] <- 0.0210085 
 
 #Assign residuals to raster cells
 CR.EO.rastProc[Env.stack.2.df$ID] <- CR.EO.resids  
 
-##Map the results----
+##Map the result
 pdf("CR.EO.ProcrustesMap.pdf")
 plot(CR.EO.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="CR vs. EO",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-CR.EO.rastProc.2 <- tm_shape(CR.EO.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(CR.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(EO.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 23,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "CR vs. EO", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(CR.EO.rastProc.2, filename = "CR.EO.ProcrustesMap_2.pdf")
 
 #Callitris rhomboidea vs. Grevillea aquifolium----
 CR.GA.diff.procrustes = procrustes(CR.PCA, GA.PCA, scale=TRUE, symmetrical=FALSE)
 CR.GA.resids = residuals(CR.GA.diff.procrustes)
-
 summary(CR.GA.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#6.144e-05 2.647e-03 3.465e-03 4.456e-03 4.633e-03 3.839e-02 
 
 #Specify raster properties based on an existing one
 CR.GA.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 CR.GA.rastProc[CR.GA.rastProc != 0] <- 3.839e-02 
 
 #Assign residuals to raster cells
 CR.GA.rastProc[Env.stack.2.df$ID] <- CR.GA.resids  
 
-##Map the results----
+##Map the results
 pdf("CR.GA.ProcrustesMap.pdf")
 plot(CR.GA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="CR vs. GA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-CR.GA.rastProc.2 <- tm_shape(CR.GA.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(CR.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(GA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "CR vs. GA", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(CR.GA.rastProc.2, filename = "CR.GA.ProcrustesMap_2.pdf")
 
 #Callitris rhomboidea vs. Xanthorrhoea australis----
 CR.XA.diff.procrustes = procrustes(CR.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
 CR.XA.resids = residuals(CR.XA.diff.procrustes)
-
 summary(CR.XA.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#6.095e-05 1.593e-03 2.105e-03 2.329e-03 2.932e-03 8.709e-03  
 
 #Specify raster properties based on an existing one
 CR.XA.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 CR.XA.rastProc[CR.XA.rastProc != 0] <- 8.709e-03
 
 #Assign residuals to raster cells
 CR.XA.rastProc[Env.stack.2.df$ID] <- CR.XA.resids  
 
-##Map the results----
+##Map the results
 pdf("CR.XA.ProcrustesMap.pdf")
 plot(CR.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="CR vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-CR.XA.rastProc.2 <- tm_shape(CR.XA.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(CR.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(XA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "CR vs. XA", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(CR.XA.rastProc.2, filename = "CR.XA.ProcrustesMap_2.pdf")
 
 #Epacris impressa vs. Eucalyptus obliqua----
 EI.EO.diff.procrustes = procrustes(EI.PCA, EO.PCA, scale=TRUE, symmetrical=FALSE)
 EI.EO.resids = residuals(EI.EO.diff.procrustes)
-
 summary(EI.EO.resids)
-#.    Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0002222 0.0046673 0.0066752 0.0074918 0.0097004 0.0323659 
 
 #Specify raster properties based on an existing one
 EI.EO.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 EI.EO.rastProc[EI.EO.rastProc != 0] <- 0.0323659  
 
 #Assign residuals to raster cells
 EI.EO.rastProc[Env.stack.2.df$ID] <- EI.EO.resids  
 
-##Map the results----
+##Map the results
 pdf("EI.EO.ProcrustesMap.pdf")
 plot(EI.EO.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EI vs. EO",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EI.EO.rastProc.2 <- tm_shape(EI.EO.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(EI.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(EO.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 23,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "EI vs. EO", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(EI.EO.rastProc.2, filename = "EI.EO.ProcrustesMap_2.pdf")
 
 #Epacris impressa vs. Grevillea aquifolium----
 EI.GA.diff.procrustes = procrustes(EI.PCA, GA.PCA, scale=TRUE, symmetrical=FALSE)
 EI.GA.resids = residuals(EI.GA.diff.procrustes)
-
 summary(EI.GA.resids)
-#    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-#0.001131 0.005222 0.008178 0.010262 0.014021 0.061290
 
 #Specify raster properties based on an existing one
 EI.GA.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 EI.GA.rastProc[EI.GA.rastProc != 0] <- 0.061290 
 
 #Assign residuals to raster cells
 EI.GA.rastProc[Env.stack.2.df$ID] <- EI.GA.resids  
 
-##Map the results----
+##Map the results
+###Using plot function
 pdf("EI.GA.ProcrustesMap.pdf")
 plot(EI.GA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EI vs. GA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EI.GA.rastProc.2 <- tm_shape(EI.GA.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(EI.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(GA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "EI vs. GA", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(EI.GA.rastProc.2, filename = "EI.GA.ProcrustesMap_2.pdf")
 
 #Epacris impressa vs. Xanthorrhoea australis----
 EI.XA.diff.procrustes = procrustes(EI.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
 EI.XA.resids = residuals(EI.XA.diff.procrustes)
-
 summary(EI.XA.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0001716 0.0061360 0.0082718 0.0091430 0.0114723 0.0315131 
 
 #Specify raster properties based on an existing one
 EI.XA.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 EI.XA.rastProc[EI.XA.rastProc != 0] <- 0.0315131  
 
 #Assign residuals to raster cells
 EI.XA.rastProc[Env.stack.2.df$ID] <- EI.XA.resids  
 
-##Map the results----
+##Map the results
 pdf("EI.XA.ProcrustesMap.pdf")
 plot(EI.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EI vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EI.XA.rastProc.2 <- tm_shape(EI.XA.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(EI.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(XA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "EI vs. XA", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(EI.XA.rastProc.2, filename = "EI.XA.ProcrustesMap_2.pdf")
 
 #Eucalyptus obliqua vs. Grevillea aquifolium----
 EO.GA.diff.procrustes = procrustes(EO.PCA, GA.PCA, scale=TRUE, symmetrical=FALSE)
 EO.GA.resids = residuals(EO.GA.diff.procrustes)
-
 summary(EO.GA.resids)
-#Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0002381 0.0057698 0.0087426 0.0105239 0.0145557 0.0587638
 
 #Specify raster properties based on an existing one
 EO.GA.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 EO.GA.rastProc[EO.GA.rastProc != 0] <- 0.0587638
 
 #Assign residuals to raster cells
 EO.GA.rastProc[Env.stack.2.df$ID] <- EO.GA.resids  
 
-##Map the results----
+##Map the results
 pdf("EO.GA.ProcrustesMap.pdf")
 plot(EO.GA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EO vs. GA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EO.GA.rastProc.2 <- tm_shape(EO.GA.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(EO.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 23,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(GA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "EO vs. GA", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(EO.GA.rastProc.2, filename = "EO.GA.ProcrustesMap_2.pdf")
 
 #Eucalyptus obliqua vs. Xanthorrhoea australis----
 EO.XA.diff.procrustes = procrustes(EO.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
 EO.XA.resids = residuals(EO.XA.diff.procrustes)
-
 summary(EO.XA.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#0.0001908 0.0060101 0.0077643 0.0079720 0.0094949 0.0181932 
 
 #Specify raster properties based on an existing one
 EO.XA.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 EO.XA.rastProc[EO.XA.rastProc != 0] <- 0.0181932
 
 #Assign residuals to raster cells
 EO.XA.rastProc[Env.stack.2.df$ID] <- EO.XA.resids  
 
-##Map the results----
+##Map the results
 pdf("EO.XA.ProcrustesMap.pdf")
 plot(EO.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="EO vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-EO.XA.rastProc.2 <- tm_shape(EO.XA.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(EO.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 23,
-             border.col="black",
-             col = "white",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(XA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "GA vs. XA", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
-
-tmap_save(EO.XA.rastProc.2, filename = "EO.XA.ProcrustesMap_2.pdf")
 
 #Grevillea aquifolium vs. Xanthorrhoea australis----
 GA.XA.diff.procrustes = procrustes(GA.PCA, XA.PCA, scale=TRUE, symmetrical=FALSE)
 GA.XA.resids = residuals(GA.XA.diff.procrustes)
-
 summary(GA.XA.resids)
-#     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-#8.052e-05 2.607e-03 3.960e-03 4.847e-03 5.624e-03 3.742e-02 
 
 #Specify raster properties based on an existing one
 GA.XA.rastProc <- Env.stack.2$BIO05  
 
-# Make all non-zero values in mask = 0.015
+#Replace all non-zero Procrustes residuals with the maximum value (see Table S7)
 GA.XA.rastProc[GA.XA.rastProc != 0] <- 3.742e-02 
 
 #Assign residuals to raster cells
 GA.XA.rastProc[Env.stack.2.df$ID] <- GA.XA.resids  
 
-##Map the results----
+##Map the results
 pdf("GA.XA.ProcrustesMap.pdf")
 plot(GA.XA.rastProc, col = sequential_hcl(23, "Lajolla"),
      main="GA vs. XA",
      font.main=4, font.lab=4, font.sub=4)
 dev.off()
 
-GA.XA.rastProc.2 <- tm_shape(GA.XA.rastProc)+
-  tm_raster(style = 'cont',
-            n=6, 
-            palette= "-RdGy",
-            title="",
-            legend.is.portrait = FALSE) +
-  tm_shape(gnp) +  
-  tm_borders("black", lwd = 1)  +
-  tm_shape(GA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 21,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_shape(XA.coords.shp) +
-  tm_symbols(shape = "Pop",
-             shapes = 24,
-             border.col="white",
-             col = "black",
-             border.lwd=0.7,
-             size = 0.5,
-             legend.shape.show = F)+
-  tm_layout(legend.outside = TRUE,
-            legend.stack = "horizontal",
-            legend.outside.position = "bottom",
-            legend.outside.size = 0.1, 
-            legend.text.size = 1,
-            legend.title.size=1.5,
-            main.title = "GA vs. XA", title.size = 0.4, 
-            title.position = c("right", "center"), 
-            inner.margins = c(0.03, 0.05, 0.03, 0.05))
 
-tmap_save(GA.XA.rastProc.2, filename = "GA.XA.ProcrustesMap_2.pdf")
-
-#PLot procrustes residuals across species----
-
+#Plot procrustes residuals across species----
 rastProc <- stack(CR.XA.rastProc, BM.GA.rastProc, EO.XA.rastProc, CR.EO.rastProc, BM.CR.rastProc, 
                   BM.XA.rastProc, EI.XA.rastProc, EI.EO.rastProc, CR.EI.rastProc, GA.XA.rastProc, 
                   CR.GA.rastProc, BM.EO.rastProc, BM.EI.rastProc, EO.GA.rastProc, EI.GA.rastProc)
@@ -2448,31 +1864,23 @@ tmap_save(rastProc.spp, filename = "Procrustes_map_spp_2_scaled.pdf")
 
 Inferring similarities in genetic variation patterns between species (Figure 5)
 ```{r}
-Final_scatter_VIF <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/Combined/Final_order_GO_R2_VIF.csv")
+#First, calculate pairwise Pearson's correlation coefficients of the R2-weighted importance of environmental variables
+
+##Create a table of R2 values with predictors as rows and species as columns.
+R2.spp <- read.csv("R2.spp.csv", header = TRUE)
+
+#Run correlation analysis
+R2.spp.cor <- cor(R2.spp[,-1])
+write.csv(R2.spp.cor, file="R2.spp.cor.csv")
+
+#Create a table of pairwise species comparisons, with each row representing a species pair and columns containing the Procrustes residuals and Pearson's correlation (R2) values.
+R2_PR <- read.csv("R2_PR.csv")
 
 ###Linear regression----
-R2_PR.lm <- lm(R2 ~ PR, data = Final_scatter_VIF)
+R2_PR.lm <- lm(R2 ~ PR, data = R2_PR)
 summary(R2_PR.lm)
 
-#Call:
-#lm(formula = R2 ~ PR, data = Final_scatter_VIF)
-
-#Residuals:
-#     Min       1Q   Median       3Q      Max 
-#-0.49155 -0.38817 -0.04331  0.24366  0.76957 
-
-#Coefficients:
-#            Estimate Std. Error t value Pr(>|t|)    
-#(Intercept)   1.0572     0.2762   3.828 0.002094 ** 
-#PR          -31.6386     7.4086  -4.270 0.000912 ***
-#---
-#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-#Residual standard error: 0.4279 on 13 degrees of freedom
-#Multiple R-squared:  0.5838,	Adjusted R-squared:  0.5518 
-#F-statistic: 18.24 on 1 and 13 DF,  p-value: 0.0009118
-
-ggplot(Final_scatter_VIF, aes(x = PR, y = R2)) +
+ggplot(R2_PR, aes(x = PR, y = R2)) +
   geom_point(size = 3, shape = 21, colour = "black", fill = "#b4b4b4") +
   geom_smooth(method = "lm", color = "#008c97", fill = "#d7d7d7") +
   stat_poly_eq(
