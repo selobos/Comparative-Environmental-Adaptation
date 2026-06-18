@@ -872,7 +872,7 @@ values(EO.raster.b.vif) <- EO.pcs.vif$b
 EO.rgbmap.vif <- stack(EO.raster.r.vif, EO.raster.g.vif, EO.raster.b.vif)
 
 #Load coordinates
-EO.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/EO/EO_coords_Ch2.csv")
+EO.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EO_coords_Ch2.csv")
 
 ##Plot using plotRGB function
 png("EO_Mapping_geographic_space_GF_BP_LF_vif.png", width=800, height=1550, res=200)
