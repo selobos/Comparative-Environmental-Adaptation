@@ -195,7 +195,7 @@ BM.a3 <- BM.PCA$x[, 3]
 BM.r <- BM.a1 + BM.a2
 BM.g <- -BM.a2
 BM.b <- BM.a3 + BM.a2 - BM.a1
-#Scale colors
+#Scale colours
 BM.r <- (BM.r - min(BM.r))/(max(BM.r) - min(BM.r)) * 255
 BM.g <- (BM.g - min(BM.g))/(max(BM.g) - min(BM.g)) * 255
 BM.b <- (BM.b - min(BM.b))/(max(BM.b) - min(BM.b)) * 255
@@ -401,7 +401,7 @@ CR.a3 <- CR.PCA$x[, 3]
 CR.r <- CR.a1 + CR.a2
 CR.g <- -CR.a2
 CR.b <- CR.a3 + CR.a2 - CR.a1
-# Scale colors
+# Scale colours
 CR.r <- (CR.r - min(CR.r))/(max(CR.r) - min(CR.r)) * 255
 CR.g <- (CR.g - min(CR.g))/(max(CR.g) - min(CR.g)) * 255
 CR.b <- (CR.b - min(CR.b))/(max(CR.b) - min(CR.b)) * 255
@@ -417,7 +417,7 @@ CR.trns_site <- predict(cal.BP.lfmm.GF)
 CR.PCA.sites <- predict(CR.PCA, CR.trns_site[, cal.vars])
 jit <- 0.001
 
-#write.csv(CR.PCA.sites, file="CR.PCA.sites.csv")
+write.csv(CR.PCA.sites, file="CR.PCA.sites.csv")
 CR.PCA.sites_names <- read.csv("CR.PCA.sites.csv") # This dataset is the same as "CR.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
 tiff("CR_Biplot_biological_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
@@ -519,7 +519,7 @@ CR.coords.shp$Pop <- factor(
   CR.coords.shp$Pop,
   levels = unique(CR.coords.shp$Pop))
 
-#Convert BM.rgbmap into a terra SpatRaster object
+#Convert CR.rgbmap into a terra SpatRaster object
 CR.rgbmap.spat <- rast(CR.rgbmap)
 
 #Plot
@@ -577,6 +577,7 @@ EI.grid.pre <- predict(epa.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack
 EI.PCA <- prcomp(na.omit(EI.grid.pre), center=TRUE, sepae.=FALSE)
 save(EI.PCA, file="EI.PCA.RData")
 EI.pcs.full.gf <- EI.PCA 
+summary(EI.PCA)
 
 #Assign PC
 EI.a1 <- EI.PCA$x[, 1]
@@ -587,7 +588,7 @@ EI.a3 <- EI.PCA$x[, 3]
 EI.r <- EI.a1 + EI.a2
 EI.g <- -EI.a2
 EI.b <- EI.a3 + EI.a2 - EI.a1
-#Scale colors
+#Scale colours
 EI.r <- (EI.r - min(EI.r))/(max(EI.r) - min(EI.r)) * 255
 EI.g <- (EI.g - min(EI.g))/(max(EI.g) - min(EI.g)) * 255
 EI.b <- (EI.b - min(EI.b))/(max(EI.b) - min(EI.b)) * 255
@@ -603,7 +604,7 @@ EI.trns_site <- predict(epa.BP.lfmm.GF)
 EI.PCA.sites <- predict(EI.PCA, EI.trns_site[, epa.vars])
 jit <- 0.001
 
-#write.csv(EI.PCA.sites, file="EI.PCA.sites.csv")
+write.csv(EI.PCA.sites, file="EI.PCA.sites.csv")
 EI.PCA.sites_names <- read.csv("EI.PCA.sites.csv") #This dataset is the same as "BM.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
 tiff("EI_Biplot_biologiepa_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
@@ -704,7 +705,7 @@ EI.coords.shp$Pop <- factor(
   EI.coords.shp$Pop,
   levels = unique(EI.coords.shp$Pop))
 
-#Convert BM.rgbmap into a terra SpatRaster object
+#Convert EI.rgbmap into a terra SpatRaster object
 EI.rgbmap.spat <- rast(EI.rgbmap)
 
 #Plot
@@ -753,84 +754,55 @@ ggsave(file = "EI_GF_map.pdf", width = 12, height = 12, dpi = 300)
 ```
 
 ```{r Eucalyptus obliqua}
-##load GF object (gre.BP.lfmm.GF) 
+#Transform gradient forest predictions
+euc.vars.vif <- names(importance(euc.BP.lfmm.GF.vif))
+EO.grid.pre.vif <- predict(euc.BP.lfmm.GF.vif, Env.stack.3.grid[complete.cases(Env.stack.3.grid), euc.vars.vif]) # need to get rid of NA rows or an error pops up
 
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/GA/GA_GF_BP_LF.RData") 
+#PCA
+EO.PCA.vif <- prcomp(na.omit(EO.grid.pre.vif), center=TRUE, seuce.=FALSE)
+save(EO.PCA.vif, file="EO.PCA.vif.RData")
+EO.pcs.vif.full.gf.vif <- EO.PCA.vif 
+summary(EO.PCA.vif)
 
-#PCA of the transformed grid for plotting in RGB palette}
+#Assign PC
+EO.a1.vif <- EO.PCA.vif$x[, 1]
+EO.a2.vif <- EO.PCA.vif$x[, 2]
+EO.a3.vif <- EO.PCA.vif$x[, 3]
 
-#The multi-dimensional biologigre space can most effectively be represented by taking the principle components of the transformed grid and presenting the first two dimensions in a biplot.
+#Define RGB colour palette (your choice)
+EO.r.vif <- EO.a1.vif + EO.a2.vif
+EO.g.vif <- -EO.a2.vif
+EO.b.vif <- EO.a3.vif + EO.a2.vif - EO.a1.vif
+#Scale colours
+EO.r.vif <- (EO.r.vif - min(EO.r.vif))/(max(EO.r.vif) - min(EO.r.vif)) * 255
+EO.g.vif <- (EO.g.vif - min(EO.g.vif))/(max(EO.g.vif) - min(EO.g.vif)) * 255
+EO.b.vif <- (EO.b.vif - min(EO.b.vif))/(max(EO.b.vif) - min(EO.b.vif)) * 255
 
-# To allow straightforward ProGAustes superpositioning and generation of ensemble model, I only greculate the first 8 PCs here. This is perfectly fine because I anyway only visualise the first 3 PCs. 
-#Reference: https://github.com/hirzi/RhEA/blob/main/Gradient%20forest%20and%20glacial%20genomic%20offset/GradientForest_GlacialGenomicOffset.R#L361
-
-# Transform variables by predicting with GF model
-gre.vars <- names(importance(gre.BP.lfmm.GF))
-GA.grid.pre <- predict(gre.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), gre.vars]) 
-
-# GA.PCA of the transformed grid for plotting in RGB palette
-GA.PCA <- prcomp(na.omit(GA.grid.pre), center=TRUE, scale.=FALSE)
-save(GA.PCA, file="GA.PCA.RData")
-GA.pcs.full.gf <- GA.PCA # Output for ensemble model generation
-#Standard deviations (1, .., p=4):
-#  [1] 0.014744988 0.010031450 0.005660944 0.004007094
-
-#Rotation (n x k) = (4 x 4):
-#             PC1         PC2         PC3         PC4
-#AVP    0.8420279 -0.50386179 -0.16878209 -0.09287060
-#TWI   -0.2410700 -0.08576805 -0.96606432  0.03533836
-#pHc   -0.3742612 -0.77379302  0.17959229  0.47845538
-#BIO05 -0.3046356 -0.37418111  0.07732362 -0.87247160
-
-summary(GA.PCA)
-#Importance of components:
-#                           PC1     PC2      PC3      PC4
-#Standard deviation     0.01474 0.01003 0.005661 0.004007
-#Proportion of Variance 0.59379 0.27483 0.087520 0.043850
-#Cumulative Proportion  0.59379 0.86862 0.956150 1.000000
-
-GA.a1 <- GA.PCA$x[, 1]
-GA.a2 <- GA.PCA$x[, 2]
-GA.a3 <- GA.PCA$x[, 3]
-GA.r <- GA.a1 + GA.a2
-GA.g <- -GA.a2
-GA.b <- GA.a3 + GA.a2 - GA.a1
-# scale colors
-GA.r <- (GA.r - min(GA.r))/(max(GA.r) - min(GA.r)) * 255
-GA.g <- (GA.g - min(GA.g))/(max(GA.g) - min(GA.g)) * 255
-GA.b <- (GA.b - min(GA.b))/(max(GA.b) - min(GA.b)) * 255
-
-# Plot predicted genetic turnover in genetic space (GA.PCA biplot)
-GA.nvs <- dim(GA.PCA$rotation)[1]
-GA.vec <- gre.vars
-GA.lv <- length(GA.vec)
-GA.vind <- rownames(GA.PCA$rotation) %in% GA.vec
-scal <- 20
-GA.xrng <- range(GA.PCA$x[, 1], GA.PCA$rotation[, 1]/scal) * 1.1
-GA.yrng <- range(GA.PCA$x[, 2], GA.PCA$rotation[, 2]/scal) * 1.1
-GA.trns_site <- predict(gre.BP.lfmm.GF)
-GA.PCA.sites <- predict(GA.PCA, GA.trns_site[, gre.vars])
+EO.nvs.vif <- dim(EO.PCA.vif$rotation)[1]
+EO.vec.vif <- euc.vars.vif
+EO.lv.vif <- length(EO.vec.vif)
+EO.vind.vif <- rownames(EO.PCA.vif$rotation) %in% EO.vec.vif
+seuc <- 20
+EO.xrng.vif <- range(EO.PCA.vif$x[, 1], EO.PCA.vif$rotation[, 1]/seuc) * 1.1
+EO.yrng.vif <- range(EO.PCA.vif$x[, 2], EO.PCA.vif$rotation[, 2]/seuc) * 1.1
+EO.trns_site.vif <- predict(euc.BP.lfmm.GF.vif)
+EO.PCA.vif.sites <- predict(EO.PCA.vif, EO.trns_site.vif[, euc.vars.vif])
 jit <- 0.001
 
-#write.csv(GA.PCA.sites, file="GA.PCA.sites.csv")
-GA.PCA.sites_names <- read.csv("GA.PCA.sites.csv") 
+write.csv(EO.PCA.vif.sites, file="EO.PCA.vif.sites.csv")
+EO.PCA.vif.sites_names <- read.csv("EO.PCA.vif.sites.csv") #This dataset is the same as "EO.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_labels.tiff", width=1500, height=1300, res=300)
-#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_vec.tiff", width=1500, height=1300, res=300)
-tiff("GA_Biplot_biologigre_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
+tiff("EO_Biplot_biologieuc_space_GF_BP_LF_2_vif.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
-plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
-     pch = ".", cex = 4, col = rgb(GA.r, GA.g, GA.b, max = 255), 
+plot((EO.PCA.vif$x[, 1:2]), xlim = EO.xrng.vif, ylim = EO.yrng.vif, xlab = "PC1 (57%)", ylab = "PC2 (23%)", 
+     pch = ".", cex = 4, col = rgb(EO.r.vif, EO.g.vif, EO.b.vif, max = 255), 
      asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
 #rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
 #par(new = TRUE)
-#plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
-#     pch = ".", cex = 4, col = rgb(GA.r, GA.g, GA.b, max = 255), 
-#     asp = 1, cex.lab = 2, cex.axis = 1)
 #abline(h = 0, v = 0, col = "grey70", lwd = 1)
 #axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
 #axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
-points(GA.PCA.sites_names[, 3:4],  pch = c(25,
+points(EO.PCA.vif.sites_names[, 3:4],  pch = c(25,
                                            24,
                                            22,
                                            24,
@@ -839,7 +811,6 @@ points(GA.PCA.sites_names[, 3:4],  pch = c(25,
                                            24,
                                            24,
                                            23,
-                                           22,
                                            23,
                                            22,
                                            23,
@@ -854,82 +825,79 @@ points(GA.PCA.sites_names[, 3:4],  pch = c(25,
                                            25,
                                            23,
                                            24,
-                                           24,
                                            25,
                                            25,
                                            22,
-                                           22), lwd = 0.7, cex =1, 
+                                           22), lwd = 0.7, cex = 1, 
        bg = NA, 
        col = "black")
-arrows(rep(0, GA.lv), rep(0, GA.lv), 
-       GA.PCA$rotation[GA.vec, 1]/scal, 
-       GA.PCA$rotation[GA.vec, 2]/scal, 
+arrows(rep(0, EO.lv.vif), rep(0, EO.lv.vif), 
+       EO.PCA.vif$rotation[EO.vec.vif, 1]/seuc, 
+       EO.PCA.vif$rotation[EO.vec.vif, 2]/seuc, 
        length = 0.1, lwd = 3.5, angle = 20, 
        col = "black")
-arrows(rep(0, GA.lv), rep(0, GA.lv), 
-       GA.PCA$rotation[GA.vec, 1]/scal, 
-       GA.PCA$rotation[GA.vec, 2]/scal, 
+arrows(rep(0, EO.lv.vif), rep(0, EO.lv.vif), 
+       EO.PCA.vif$rotation[EO.vec.vif, 1]/seuc, 
+       EO.PCA.vif$rotation[EO.vec.vif, 2]/seuc, 
        length = 0.1, lwd = 2, angle = 20, 
-       col = c("#B7B7B7","#B78560","#43BA8F","#CC79A7"))
-text(GA.PCA$rotation[GA.vec, 1]/scal + jit * sign(GA.PCA$rotation[GA.vec, 1]), 
-     GA.PCA$rotation[GA.vec, 2]/scal + jit * sign(GA.PCA$rotation[GA.vec, 2]), 
+       col = c("#B78560","#43BA8F","#CC79A7","#B7B7B7"))
+text(EO.PCA.vif$rotation[EO.vec.vif, 1]/seuc + jit * sign(EO.PCA.vif$rotation[EO.vec.vif, 1]), 
+     EO.PCA.vif$rotation[EO.vec.vif, 2]/seuc + jit * sign(EO.PCA.vif$rotation[EO.vec.vif, 2]), 
      labels = NULL,  cex = 0.5, pos = 2)
-#labels = GA.vec,  cex = 0.5, pos = 2)
+#labels = EO.vec.vif,  cex = 0.5, pos = 2)
 # Light gray background
-#addTextLabels(GA.PCA.sites_names[, 3], 
-#GA.PCA.sites_names[, 4], 
-#GA.PCA.sites_names$Pop ,
+#addTextLabels(EO.PCA.vif.sites_names[, 3], 
+#EO.PCA.vif.sites_names[, 4], 
+#EO.PCA.vif.sites_names$Pop ,
 #col.background=rgb(0,0,0,0.75),
 #cex.label=0.7, col.label="white")
 dev.off()
 
-# Plot (map) predicted genetic turnover in geographic space
-# *GA.PCA is remvoing NAs, so the GA.vector is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
-Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
-Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
-GA.pcs <- as.data.frame(GA.PCA$x)
-GA.pcs$x <- Env.stack.2.grid$x[Env.stack.2.grid$nas]
-GA.pcs <- merge(GA.pcs, Env.stack.2.grid, by = "x", all = TRUE)
-GA.pcs$r <- GA.pcs$PC1 + GA.pcs$PC2
-GA.pcs$g <- -GA.pcs$PC2
-GA.pcs$b <- GA.pcs$PC3 + GA.pcs$PC2 - GA.pcs$PC1
-GA.pcs$r <- (GA.pcs$r - min(GA.pcs$r, na.rm = TRUE))/(max(GA.pcs$r, na.rm = TRUE) - min(GA.pcs$r, na.rm = TRUE)) * 255
-GA.pcs$g <- (GA.pcs$g - min(GA.pcs$g, na.rm = TRUE))/(max(GA.pcs$g, na.rm = TRUE) - min(GA.pcs$g, na.rm = TRUE)) * 255
-GA.pcs$b <- (GA.pcs$b - min(GA.pcs$b, na.rm = TRUE))/(max(GA.pcs$b, na.rm = TRUE) - min(GA.pcs$b, na.rm = TRUE)) * 255
-GA.raster.r <- GA.raster.g <- GA.raster.b <- Env.stack.2[[1]]
-values(GA.raster.r) <- GA.pcs$r
-values(GA.raster.g) <- GA.pcs$g
-values(GA.raster.b) <- GA.pcs$b
-GA.rgbmap <- stack(GA.raster.r, GA.raster.g, GA.raster.b)
+#Map predicted genetic turnover in geographic space
+Env.stack.3.grid$x <- 1:nrow(Env.stack.3.grid)
+Env.stack.3.grid$nas <- complete.cases(Env.stack.3.grid)
+EO.pcs.vif <- as.data.frame(EO.PCA.vif$x)
+EO.pcs.vif$x <- Env.stack.3.grid$x[Env.stack.3.grid$nas]
+EO.pcs.vif <- merge(EO.pcs.vif, Env.stack.3.grid, by = "x", all = TRUE)
+EO.pcs.vif$r <- EO.pcs.vif$PC1 + EO.pcs.vif$PC2
+EO.pcs.vif$g <- -EO.pcs.vif$PC2
+EO.pcs.vif$b <- EO.pcs.vif$PC3 + EO.pcs.vif$PC2 - EO.pcs.vif$PC1
+EO.pcs.vif$r <- (EO.pcs.vif$r - min(EO.pcs.vif$r, na.rm = TRUE))/(max(EO.pcs.vif$r, na.rm = TRUE) - min(EO.pcs.vif$r, na.rm = TRUE)) * 255
+EO.pcs.vif$g <- (EO.pcs.vif$g - min(EO.pcs.vif$g, na.rm = TRUE))/(max(EO.pcs.vif$g, na.rm = TRUE) - min(EO.pcs.vif$g, na.rm = TRUE)) * 255
+EO.pcs.vif$b <- (EO.pcs.vif$b - min(EO.pcs.vif$b, na.rm = TRUE))/(max(EO.pcs.vif$b, na.rm = TRUE) - min(EO.pcs.vif$b, na.rm = TRUE)) * 255
+EO.raster.r.vif <- EO.raster.g.vif <- EO.raster.b.vif <- Env.stack.3[[1]]
+values(EO.raster.r.vif) <- EO.pcs.vif$r
+values(EO.raster.g.vif) <- EO.pcs.vif$g
+values(EO.raster.b.vif) <- EO.pcs.vif$b
+EO.rgbmap.vif <- stack(EO.raster.r.vif, EO.raster.g.vif, EO.raster.b.vif)
 
-###Map spatial pattern of predicted genomic composition----
-#Load geo coords
-GA.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/GA/GA_coords_Ch2.csv")
+#Load coordinates
+EO.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/EO/EO_coords_Ch2.csv")
 
-png("GA_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
-plotRGB(GA.rgbmap)
-points(GA.coords$lon, GA.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
+##Plot using plotRGB function
+png("EO_Mapping_geographic_space_GF_BP_LF_vif.png", width=800, height=1550, res=200)
+plotRGB(EO.rgbmap.vif)
+points(EO.coords$lon, EO.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
 dev.off()
 
-GA.coords.shp=st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/GA/GA_coords_Ch2.shp")
+##Plot using ggplot2 function
 
-gnp <- st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Shapefiles/Grampians_W/Grampians_Wh_2.shp")
+#Load sampling locations shapefile 
+EO.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EO_coords_Ch2.shp")
 
-#hills <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/hills.tif")
+#Convert the Pop column into a factor
+EO.coords.shp$Pop <- factor(
+  EO.coords.shp$Pop,
+  levels = unique(EO.coords.shp$Pop))
 
-#dem <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/GNP_dem.tif")
+#Convert EO.rgbmap into a terra SpatRaster object
+EO.rgbmap.vif.spat <- rast(EO.rgbmap.vif)
 
-GA.coords.shp$Pop <- factor(
-  GA.coords.shp$Pop,
-  levels = unique(GA.coords.shp$Pop)
-)
-
-GA.rgbmap.spat <- rast(GA.rgbmap)
-
+#Plot
 ggplot() +
-  geom_spatraster_rgb(data = GA.rgbmap.spat) +
+  geom_spatraster_rgb(data = EO.rgbmap.vif.spat) +
   geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
-  geom_point(data = GA.coords.shp, aes(x = lon, y = lat, shape = Pop),
+  geom_point(data = EO.coords.shp, aes(x = lon, y = lat, shape = Pop),
              size = 10, colour = "black", fill = "white",stroke = 1.5) +
   scale_shape_manual(values = c(25,
                                 24,
@@ -940,7 +908,6 @@ ggplot() +
                                 24,
                                 24,
                                 23,
-                                22,
                                 23,
                                 22,
                                 23,
@@ -954,7 +921,6 @@ ggplot() +
                                 22,
                                 25,
                                 23,
-                                24,
                                 24,
                                 25,
                                 25,
@@ -969,60 +935,34 @@ ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) 
 
-ggsave(file = "GA_GF_map.pdf", width = 12, height = 12, dpi = 300)
-
-save(GA.rgbmap, file="GA.rgbmap.Rdata") 
+ggsave(file = "EO_GF_map_vif.pdf", width = 12, height = 12, dpi = 300)
 ```
 
 ```{r Grevillea aquifolium}
-##load GF object (gre.BP.lfmm.GF) 
-
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/GA/GA_GF_BP_LF.RData") 
-
-#PCA of the transformed grid for plotting in RGB palette}
-
-#The multi-dimensional biologigre space can most effectively be represented by taking the principle components of the transformed grid and presenting the first two dimensions in a biplot.
-
-# To allow straightforward ProGAustes superpositioning and generation of ensemble model, I only greculate the first 8 PCs here. This is perfectly fine because I anyway only visualise the first 3 PCs. 
-#Reference: https://github.com/hirzi/RhEA/blob/main/Gradient%20forest%20and%20glacial%20genomic%20offset/GradientForest_GlacialGenomicOffset.R#L361
-
-# Transform variables by predicting with GF model
+#Transform gradient forest predictions
 gre.vars <- names(importance(gre.BP.lfmm.GF))
 GA.grid.pre <- predict(gre.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), gre.vars]) 
 
-# GA.PCA of the transformed grid for plotting in RGB palette
+#PCA
 GA.PCA <- prcomp(na.omit(GA.grid.pre), center=TRUE, scale.=FALSE)
 save(GA.PCA, file="GA.PCA.RData")
-GA.pcs.full.gf <- GA.PCA # Output for ensemble model generation
-#Standard deviations (1, .., p=4):
-#  [1] 0.014744988 0.010031450 0.005660944 0.004007094
-
-#Rotation (n x k) = (4 x 4):
-#             PC1         PC2         PC3         PC4
-#AVP    0.8420279 -0.50386179 -0.16878209 -0.09287060
-#TWI   -0.2410700 -0.08576805 -0.96606432  0.03533836
-#pHc   -0.3742612 -0.77379302  0.17959229  0.47845538
-#BIO05 -0.3046356 -0.37418111  0.07732362 -0.87247160
-
+GA.pcs.full.gf <- GA.PCA 
 summary(GA.PCA)
-#Importance of components:
-#                           PC1     PC2      PC3      PC4
-#Standard deviation     0.01474 0.01003 0.005661 0.004007
-#Proportion of Variance 0.59379 0.27483 0.087520 0.043850
-#Cumulative Proportion  0.59379 0.86862 0.956150 1.000000
 
+#Assign PC
 GA.a1 <- GA.PCA$x[, 1]
 GA.a2 <- GA.PCA$x[, 2]
 GA.a3 <- GA.PCA$x[, 3]
+
+#Define RGB colour palette (your choice)
 GA.r <- GA.a1 + GA.a2
 GA.g <- -GA.a2
 GA.b <- GA.a3 + GA.a2 - GA.a1
-# scale colors
+#Scale colours
 GA.r <- (GA.r - min(GA.r))/(max(GA.r) - min(GA.r)) * 255
 GA.g <- (GA.g - min(GA.g))/(max(GA.g) - min(GA.g)) * 255
 GA.b <- (GA.b - min(GA.b))/(max(GA.b) - min(GA.b)) * 255
 
-# Plot predicted genetic turnover in genetic space (GA.PCA biplot)
 GA.nvs <- dim(GA.PCA$rotation)[1]
 GA.vec <- gre.vars
 GA.lv <- length(GA.vec)
@@ -1034,11 +974,9 @@ GA.trns_site <- predict(gre.BP.lfmm.GF)
 GA.PCA.sites <- predict(GA.PCA, GA.trns_site[, gre.vars])
 jit <- 0.001
 
-#write.csv(GA.PCA.sites, file="GA.PCA.sites.csv")
-GA.PCA.sites_names <- read.csv("GA.PCA.sites.csv") 
+write.csv(GA.PCA.sites, file="GA.PCA.sites.csv")
+GA.PCA.sites_names <- read.csv("GA.PCA.sites.csv") #This dataset is the same as "GA.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_labels.tiff", width=1500, height=1300, res=300)
-#tiff("GA_Biplot_biologigre_space_GF_BP_LF_2_vec.tiff", width=1500, height=1300, res=300)
 tiff("GA_Biplot_biologigre_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
 plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
@@ -1046,9 +984,6 @@ plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab
      asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
 #rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
 #par(new = TRUE)
-#plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
-#     pch = ".", cex = 4, col = rgb(GA.r, GA.g, GA.b, max = 255), 
-#     asp = 1, cex.lab = 2, cex.axis = 1)
 #abline(h = 0, v = 0, col = "grey70", lwd = 1)
 #axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
 #axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
@@ -1105,8 +1040,7 @@ text(GA.PCA$rotation[GA.vec, 1]/scal + jit * sign(GA.PCA$rotation[GA.vec, 1]),
 #cex.label=0.7, col.label="white")
 dev.off()
 
-# Plot (map) predicted genetic turnover in geographic space
-# *GA.PCA is remvoing NAs, so the GA.vector is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
+#Map predicted genetic turnover in geographic space
 Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
 Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
 GA.pcs <- as.data.frame(GA.PCA$x)
@@ -1124,30 +1058,30 @@ values(GA.raster.g) <- GA.pcs$g
 values(GA.raster.b) <- GA.pcs$b
 GA.rgbmap <- stack(GA.raster.r, GA.raster.g, GA.raster.b)
 
-###Map spatial pattern of predicted genomic composition----
-#Load geo coords
-GA.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/GA/GA_coords_Ch2.csv")
+#Load coordinates
+GA.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/GA_coords_Ch2.csv")
 
+##Plot using plotRGB function
 png("GA_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
 plotRGB(GA.rgbmap)
 points(GA.coords$lon, GA.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
 dev.off()
 
-GA.coords.shp=st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/GA/GA_coords_Ch2.shp")
+##Plot using ggplot2 function
 
-gnp <- st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Shapefiles/Grampians_W/Grampians_Wh_2.shp")
+#Load sampling locations shapefile 
+GA.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/GA_coords_Ch2.shp")
 
-#hills <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/hills.tif")
-
-#dem <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/GNP_dem.tif")
-
+#Convert the Pop column into a factor
 GA.coords.shp$Pop <- factor(
   GA.coords.shp$Pop,
   levels = unique(GA.coords.shp$Pop)
 )
 
+#Convert GA.rgbmap into a terra SpatRaster object
 GA.rgbmap.spat <- rast(GA.rgbmap)
 
+#Plot
 ggplot() +
   geom_spatraster_rgb(data = GA.rgbmap.spat) +
   geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
@@ -1192,59 +1126,33 @@ ggplot() +
         panel.grid.minor = element_blank()) 
 
 ggsave(file = "GA_GF_map.pdf", width = 12, height = 12, dpi = 300)
-
-save(GA.rgbmap, file="GA.rgbmap.Rdata")
 ```
 
 ```{r Xanthorrhoea australis}
-##load GF object (xan.BP.lfmm.GF) 
-
-load("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_3_DataAnalysis/gradientForest_Combined/BP_LF/XA/XA_GF_BP_LF.RData") 
-
-#PCA of the transformed grid for plotting in RGB palette}
-
-#The multi-dimensional biologixan space can most effectively be represented by taking the principle components of the transformed grid and presenting the first two dimensions in a biplot.
-
-# To allow straightforward ProXAustes superpositioning and generation of ensemble model, I only xanculate the first 8 PCs here. This is perfectly fine because I anyway only visualise the first 3 PCs. 
-#Reference: https://github.com/hirzi/RhEA/blob/main/Gradient%20forest%20and%20glacial%20genomic%20offset/GradientForest_GlacialGenomicOffset.R#L361
-
-# Transform variables by predicting with GF model
+#Transform gradient forest predictions
 xan.vars <- names(importance(xan.BP.lfmm.GF))
 XA.grid.pre <- predict(xan.BP.lfmm.GF, Env.stack.2.grid[complete.cases(Env.stack.2.grid), xan.vars]) 
 
-# XA.PCA of the transformed grid for plotting in RGB palette
+#PCA
 XA.PCA <- prcomp(na.omit(XA.grid.pre), center=TRUE, scale.=FALSE)
 save(XA.PCA, file="XA.PCA.RData")
-XA.pcs.full.gf <- XA.PCA # Output for ensemble model generation
-#Standard deviations (1, .., p=4):
-#  [1] 0.018842402 0.011470832 0.010728110 0.005109098
-
-#Rotation (n x k) = (4 x 4):
-#             PC1        PC2         PC3          PC4
-#TWI    0.6133954 -0.6145383 -0.49601909  0.007333358
-#BIO05  0.3822248  0.4118318 -0.02533762  0.826835411
-#AVP   -0.5448735  0.1144524 -0.81309769  0.169957747
-#pHc    0.4251624  0.6630520 -0.30363666 -0.536100540
-
+XA.pcs.full.gf <- XA.PCA=
 summary(XA.PCA)
-#Importance of components:
-#                           PC1     PC2     PC3      PC4
-#Standard deviation     0.01884 0.01147 0.01073 0.005109
-#Proportion of Variance 0.56551 0.20959 0.18332 0.041580
-#Cumulative Proportion  0.56551 0.77510 0.95842 1.000000
 
+#Assign PC
 XA.a1 <- XA.PCA$x[, 1]
 XA.a2 <- XA.PCA$x[, 2]
 XA.a3 <- XA.PCA$x[, 3]
+
+#Define RGB colour palette (your choice)
 XA.r <- XA.a1 + XA.a2
 XA.g <- -XA.a2
 XA.b <- XA.a3 + XA.a2 - XA.a1
-# scale colors
+#Scale colours
 XA.r <- (XA.r - min(XA.r))/(max(XA.r) - min(XA.r)) * 255
 XA.g <- (XA.g - min(XA.g))/(max(XA.g) - min(XA.g)) * 255
 XA.b <- (XA.b - min(XA.b))/(max(XA.b) - min(XA.b)) * 255
 
-# Plot predicted genetic turnover in genetic space (XA.PCA biplot)
 XA.nvs <- dim(XA.PCA$rotation)[1]
 XA.vec <- xan.vars
 XA.lv <- length(XA.vec)
@@ -1256,11 +1164,9 @@ XA.trns_site <- predict(xan.BP.lfmm.GF)
 XA.PCA.sites <- predict(XA.PCA, XA.trns_site[, xan.vars])
 jit <- 0.001
 
-#write.csv(XA.PCA.sites, file="XA.PCA.sites.csv")
-XA.PCA.sites_names <- read.csv("XA.PCA.sites.csv") 
+write.csv(XA.PCA.sites, file="XA.PCA.sites.csv")
+XA.PCA.sites_names <- read.csv("XA.PCA.sites.csv") #This dataset is the same as "XA.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-#tiff("XA_Biplot_biologixan_space_GF_BP_LF_2_labels.tiff", width=1500, height=1300, res=300)
-#tiff("XA_Biplot_biologixan_space_GF_BP_LF_2_vec.tiff", width=1500, height=1300, res=300)
 tiff("XA_Biplot_biologixan_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
 plot((XA.PCA$x[, 1:2]), xlim = XA.xrng, ylim = XA.yrng, xlab = "PC1 (57%)", ylab = "PC2 (21%)", 
@@ -1268,9 +1174,6 @@ plot((XA.PCA$x[, 1:2]), xlim = XA.xrng, ylim = XA.yrng, xlab = "PC1 (57%)", ylab
      asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
 #rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
 #par(new = TRUE)
-#plot((XA.PCA$x[, 1:2]), xlim = XA.xrng, ylim = XA.yrng, xlab = "PC1 (57%)", ylab = "PC2 (21%)", 
-#     pch = ".", cex = 4, col = rgb(XA.r, XA.g, XA.b, max = 255), 
-#     asp = 1, cex.lab = 2, cex.axis = 1)
 #abline(h = 0, v = 0, col = "grey70", lwd = 1)
 #axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
 #axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
@@ -1328,8 +1231,7 @@ text(XA.PCA$rotation[XA.vec, 1]/scal + jit * sign(XA.PCA$rotation[XA.vec, 1]),
 #cex.label=0.7, col.label="white")
 dev.off()
 
-# Plot (map) predicted genetic turnover in geographic space
-# *XA.PCA is remvoing NAs, so the XA.vector is shorter than it should and it's messing up positions. This code introduces back the NA rows in their original positions
+#Map predicted genetic turnover in geographic space
 Env.stack.2.grid$x <- 1:nrow(Env.stack.2.grid)
 Env.stack.2.grid$nas <- complete.cases(Env.stack.2.grid)
 XA.pcs <- as.data.frame(XA.PCA$x)
@@ -1347,29 +1249,29 @@ values(XA.raster.g) <- XA.pcs$g
 values(XA.raster.b) <- XA.pcs$b
 XA.rgbmap <- stack(XA.raster.r, XA.raster.g, XA.raster.b)
 
-###Map spatial pattern of predicted genomic composition----
-#Load geo coords
-XA.coords <- read.csv("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/XA/XA_coords_Ch2.csv")
+#Load coordinates
+XA.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/XA_coords_Ch2.csv")
 
+##Plot using plotRGB function
 png("XA_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
 plotRGB(XA.rgbmap)
 points(XA.coords$lon, XA.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
 dev.off()
 
-XA.coords.shp=st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/2_Chapter/2_2_Data/GeoSpatial/XA/XA_coords_Ch2.shp")
+##Plot using ggplot2 function
 
-gnp <- st_read("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Shapefiles/Grampians_W/Grampians_Wh_2.shp")
+#Load sampling locations shapefile 
+XA.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/XA_coords_Ch2.shp")
 
-#hills <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/hills.tif")
-
-#dem <- raster("/Users/simon/Library/CloudStorage/OneDrive-DeakinUniversity/Thesis/3_Experiment/1_Chapter/1_2_Data/GeoSpatial/Climate_Raster/DEM_Grampians/GNP_dem.tif")
-
+#Convert the Pop column into a factor
 XA.coords.shp$Pop <- factor(
   XA.coords.shp$Pop,
   levels = unique(XA.coords.shp$Pop))
 
+#Convert BM.rgbmap into a terra SpatRaster object
 XA.rgbmap.spat <- rast(XA.rgbmap)
 
+#Plot
 ggplot() +
   geom_spatraster_rgb(data = XA.rgbmap.spat) +
   geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
