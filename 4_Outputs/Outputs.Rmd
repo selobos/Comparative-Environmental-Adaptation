@@ -214,7 +214,7 @@ jit <- 0.001
 write.csv(BM.PCA.sites, file="BM.PCA.sites.csv")
 BM.PCA.sites_names <- read.csv("BM.PCA.sites.csv") # This dataset is the same as "BM.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-tiff("BM_Biplot_biological_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
+tiff("BM_Biplot.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
 plot((BM.PCA$x[, 1:2]), xlim = BM.xrng, ylim = BM.yrng, xlab = "PC1 (65%)", ylab = "PC2 (19%)", 
      pch = ".", cex = 4, col = rgb(BM.r, BM.g, BM.b, max = 255), 
@@ -297,14 +297,6 @@ BM.rgbmap <- stack(BM.raster.r, BM.raster.g, BM.raster.b)
 
 #Load coordinates
 BM.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/BM_coords_Ch2.csv")
-
-##Plot using plotRGB function
-png("BM_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
-plotRGB(BM.rgbmap)
-points(BM.coords$lon, BM.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
-dev.off()
-
-##Plot using ggplot2 function
 
 #Load sampling locations shapefile 
 BM.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/BM_coords_Ch2.shp")
@@ -420,7 +412,7 @@ jit <- 0.001
 write.csv(CR.PCA.sites, file="CR.PCA.sites.csv")
 CR.PCA.sites_names <- read.csv("CR.PCA.sites.csv") # This dataset is the same as "CR.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-tiff("CR_Biplot_biological_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
+tiff("CR_Biplot.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
 plot((CR.PCA$x[, 1:2]), xlim = CR.xrng, ylim = CR.yrng, xlab = "PC1 (55%)", ylab = "PC2 (21%)", 
      pch = ".", cex = 4, col = rgb(CR.r, CR.g, CR.b, max = 255), 
@@ -502,14 +494,6 @@ CR.rgbmap <- stack(CR.raster.r, CR.raster.g, CR.raster.b)
 
 #Load coordinates
 CR.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/CR_coords_Ch2.csv")
-
-##Plot using plotRGB function
-png("CR_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
-plotRGB(CR.rgbmap)
-points(CR.coords$lon, CR.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
-dev.off()
-
-##Plot using ggplot2 function
 
 #Load sampling locations shapefile 
 CR.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/CR_coords_Ch2.shp")
@@ -607,7 +591,7 @@ jit <- 0.001
 write.csv(EI.PCA.sites, file="EI.PCA.sites.csv")
 EI.PCA.sites_names <- read.csv("EI.PCA.sites.csv") #This dataset is the same as "BM.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-tiff("EI_Biplot_biologiepa_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
+tiff("EI_Biplot.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
 plot((EI.PCA$x[, 1:2]), xlim = EI.xrng, ylim = EI.yrng, xlab = "PC1 (63%)", ylab = "PC2 (23%)", 
      pch = ".", cex = 4, col = rgb(EI.r, EI.g, EI.b, max = 255), 
@@ -688,14 +672,6 @@ EI.rgbmap <- stack(EI.raster.r, EI.raster.g, EI.raster.b)
 
 #Load coordinates
 EI.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EI_coords_Ch2.csv")
-
-##Plot using plotRGB function
-png("EI_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
-plotRGB(EI.rgbmap)
-points(EI.coords$lon, EI.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
-dev.off()
-
-##Plot using ggplot2 function
 
 #Load sampling locations shapefile 
 EI.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EI_coords_Ch2.shp")
@@ -792,7 +768,7 @@ jit <- 0.001
 write.csv(EO.PCA.vif.sites, file="EO.PCA.vif.sites.csv")
 EO.PCA.vif.sites_names <- read.csv("EO.PCA.vif.sites.csv") #This dataset is the same as "EO.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-tiff("EO_Biplot_biologieuc_space_GF_BP_LF_2_vif.tiff", width=1500, height=1300, res=300)
+tiff("EO_Biplot.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
 plot((EO.PCA.vif$x[, 1:2]), xlim = EO.xrng.vif, ylim = EO.yrng.vif, xlab = "PC1 (57%)", ylab = "PC2 (23%)", 
      pch = ".", cex = 4, col = rgb(EO.r.vif, EO.g.vif, EO.b.vif, max = 255), 
@@ -873,14 +849,6 @@ EO.rgbmap.vif <- stack(EO.raster.r.vif, EO.raster.g.vif, EO.raster.b.vif)
 
 #Load coordinates
 EO.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EO_coords_Ch2.csv")
-
-##Plot using plotRGB function
-png("EO_Mapping_geographic_space_GF_BP_LF_vif.png", width=800, height=1550, res=200)
-plotRGB(EO.rgbmap.vif)
-points(EO.coords$lon, EO.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
-dev.off()
-
-##Plot using ggplot2 function
 
 #Load sampling locations shapefile 
 EO.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EO_coords_Ch2.shp")
@@ -977,7 +945,7 @@ jit <- 0.001
 write.csv(GA.PCA.sites, file="GA.PCA.sites.csv")
 GA.PCA.sites_names <- read.csv("GA.PCA.sites.csv") #This dataset is the same as "GA.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-tiff("GA_Biplot_biologigre_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
+tiff("GA_Biplot.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
 plot((GA.PCA$x[, 1:2]), xlim = GA.xrng, ylim = GA.yrng, xlab = "PC1 (59%)", ylab = "PC2 (27%)", 
      pch = ".", cex = 4, col = rgb(GA.r, GA.g, GA.b, max = 255), 
@@ -1060,14 +1028,6 @@ GA.rgbmap <- stack(GA.raster.r, GA.raster.g, GA.raster.b)
 
 #Load coordinates
 GA.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/GA_coords_Ch2.csv")
-
-##Plot using plotRGB function
-png("GA_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
-plotRGB(GA.rgbmap)
-points(GA.coords$lon, GA.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
-dev.off()
-
-##Plot using ggplot2 function
 
 #Load sampling locations shapefile 
 GA.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/GA_coords_Ch2.shp")
@@ -1167,7 +1127,7 @@ jit <- 0.001
 write.csv(XA.PCA.sites, file="XA.PCA.sites.csv")
 XA.PCA.sites_names <- read.csv("XA.PCA.sites.csv") #This dataset is the same as "XA.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
-tiff("XA_Biplot_biologixan_space_GF_BP_LF_2.tiff", width=1500, height=1300, res=300)
+tiff("XA_Biplot.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
 plot((XA.PCA$x[, 1:2]), xlim = XA.xrng, ylim = XA.yrng, xlab = "PC1 (57%)", ylab = "PC2 (21%)", 
      pch = ".", cex = 4, col = rgb(XA.r, XA.g, XA.b, max = 255), 
@@ -1252,14 +1212,6 @@ XA.rgbmap <- stack(XA.raster.r, XA.raster.g, XA.raster.b)
 #Load coordinates
 XA.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/XA_coords_Ch2.csv")
 
-##Plot using plotRGB function
-png("XA_Mapping_geographic_space_GF_BP_LF.png", width=800, height=1550, res=200)
-plotRGB(XA.rgbmap)
-points(XA.coords$lon, XA.coords$lat,pch = 21, lwd = 1.5, cex = 1, bg = "white")
-dev.off()
-
-##Plot using ggplot2 function
-
 #Load sampling locations shapefile 
 XA.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/XA_coords_Ch2.shp")
 
@@ -1317,8 +1269,6 @@ ggplot() +
         panel.grid.minor = element_blank()) 
 
 ggsave(file = "XA_GF_map.pdf", width = 12, height = 12, dpi = 300)
-
-save(XA.rgbmap, file="XA.rgbmap.Rdata")
 ```
 
 Quantify the concordance between gradient forest prediction spaces across species pairs (Figure 4)
