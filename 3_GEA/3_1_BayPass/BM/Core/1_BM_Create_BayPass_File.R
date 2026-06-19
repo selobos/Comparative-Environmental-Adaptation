@@ -4,7 +4,7 @@
 #load packages
 library(gdata) 
 
-setwd("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/BM/Core")
+setwd("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/BM/Core") 
 
 #Load genlight object
 load("~/Desktop/Comparative-Landscape-Genomics/1_SNP_quality_control_filtering/1_1_BM/BM_gle.rdata")

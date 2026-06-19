@@ -2,7 +2,7 @@
 setwd("~Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/BM/Core")
 
 ###Calculate means from initial baypass runs on core model and produce covariance matrix
-myList<- vector(mode = "list", length = 5)
+myList<- vector(mode = "list", length = 5) 
 
 for (i in 1:5) {
   myList[[i]]<-as.matrix(read.table(paste("bm_core.",i,"_mat_omega.out",sep="")))

@@ -7,7 +7,7 @@
 
 #Set working directory 
 cd 3_GEA/3_1_BayPass/BM/Core
-
+ 
 #Load BayPass
 module load baypass
 
