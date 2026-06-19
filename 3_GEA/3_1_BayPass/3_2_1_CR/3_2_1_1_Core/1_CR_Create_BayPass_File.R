@@ -2,7 +2,7 @@
 #Code adapted from Ahrens et al. (2021).https://doi.org/10.1111/1755-0998.13351
 
 #load packages
-library(gdata)    
+library(gdata)     
 
 setwd("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/3_1_1_BM/3_1_1_1_Core")
 
