@@ -6,7 +6,7 @@
 # ==========================================
 
 #Set working directory 
-cd 3_GEA/3_1_BayPass/3_1_1_BM/3_1_1_2_EA
+cd 3_GEA/3_1_BayPass/BM/EA
 
 for i in 1 2 3 4 5
 do

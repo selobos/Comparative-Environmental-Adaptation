@@ -1,5 +1,5 @@
 #Set directory
-setwd("~Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/3_1_1_BM/3_1_1_2_EA")
+setwd("~Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/BM/EA")
 
 ###Calculate means for aux runs and output a csv file with only those above BF20
 myList<- vector(mode = "list", length = 5)

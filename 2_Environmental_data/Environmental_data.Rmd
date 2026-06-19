@@ -84,7 +84,7 @@ writeRaster(BIO12,"BIO12_2.tif")
 BIO14 = resample(BIO14, NDVI, method="bilinear")
 BIO14 <- crop(BIO14, Polygon) 
 BIO14 <- raster::mask(BIO14, gnp)
-plot(BIO14)
+plot(BIO14) 
 writeRaster(BIO14,"BIO14_2.tif")
 
 #Stack raster layers
@@ -107,19 +107,6 @@ ext <- data.frame(ext)
 
 #Identify collinear variables with correlation coefficients greater than 0.6 for exclusion.
 v1 <- vifcor(ext, th=0.6) 
-#4 variables from the 7 input variables have collinearity problem: 
- 
-#BIO01 BIO12 BIO14 BIO05 
-
-#After excluding the collinear variables, the linear correlation coefficients ranges between: 
-#min correlation ( pHc ~ AVP ):  -0.4710104 
-#max correlation ( pHc ~ TWI ):  0.4924244 
-
-#---------- VIFs of the remained variables -------- 
-#  Variables      VIF
-#1       TWI 1.463000
-#2       AVP 1.424211
-#3       pHc 1.461445
 
 #Createa a new env. raster stack with correlated variables removed
 Env.stack.2 <- subset(Env.stack,c("TWI", "AVP", "pHc", "BIO05"))
