@@ -1,0 +1,18 @@
+#!/bin/bash
+    
+# ==========================================
+# BayPass AUX Model Runs 
+# Run the auxiliary BayPass model using the created covariance matrix
+# ==========================================
+
+#Set working directory 
+cd 3_GEA/3_1_BayPass/EO/EA
+
+for i in 1 2 3 4 5
+do
+seed=$((1000 + RANDOM % 9999))
+echo "$seed"
+nohup /home/ojhollan/BAM/workingPops/sites/poolFstat/g_baypass -npop 30 -gfile EO_Baypass -seed $seed -efile EO_env_BP.txt -auxmodel -omegafile eo_core.median_mat_omega.out -outprefix eo_aux.$i -scalecov -nval 5000 -burnin 50000 -nthreads 48 &
+done
+
+#In R: Calculate the means for auxiliary runs, and output a CSV file containing only values greater than BF20. Use the EO_Get_median_mat_aux.R script.
