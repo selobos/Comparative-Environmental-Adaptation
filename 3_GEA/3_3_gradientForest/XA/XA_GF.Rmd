@@ -125,7 +125,7 @@ png("XA_overall_importance_BP_LF.png", width=1500, height=1200, res=200)
 o <- plot(xan.BP.lfmm.GF, plot.type = "O")
 dev.off()
 
-most_important <- names(importance(xan.BP.lfmm.GF))
+most_important <- names(importance(xan.BP.lfmm.GF)) 
 
 #Overallimportance in ggplot2 
 importance(xan.BP.lfmm.GF)

@@ -11,7 +11,7 @@ Import packages
 #                   DeSaix et al. (2022). https://doi.org/10.1111/ddi.13628
 
 setwd("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/GA")
- 
+  
 library(dplyr)
 library(tibble)
 library(stringr)

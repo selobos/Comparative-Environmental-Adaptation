@@ -130,7 +130,7 @@ most_important <- names(importance(epa.BP.lfmm.GF))
 #Overallimportance in ggplot2 
 importance(epa.BP.lfmm.GF)
 
-epa.BP.lfmm.GF2=c("0.06819520", "0.05669252", "0.05274327", "0.02925855")
+epa.BP.lfmm.GF2=c("0.06819520", "0.05669252", "0.05274327", "0.02925855") 
 names(epa.BP.lfmm.GF2)=c("pHc","TWI","BIO05","AVP")
 i = data.frame(epa.BP.lfmm.GF2)
 i$var = factor(rownames(i))

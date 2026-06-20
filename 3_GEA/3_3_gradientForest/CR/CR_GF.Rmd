@@ -50,7 +50,7 @@ Calculate population level allele frequencies
 #Upload Env input with rows and columns names
 Env<-read.csv("~/Desktop/Comparative-Landscape-Genomics/2_Environmental_data/CR_Env_lfmm_2.csv", header=T)
 head(Env)
-
+ 
 #get allele frequency for each population 
 library(tidyr)
 

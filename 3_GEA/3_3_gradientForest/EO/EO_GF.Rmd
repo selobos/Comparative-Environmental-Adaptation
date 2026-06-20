@@ -129,7 +129,7 @@ most_important <- names(importance(euc.BP.lfmm.GF))
 
 #Overallimportance in ggplot2 
 importance(euc.BP.lfmm.GF)
-
+ 
 euc.BP.lfmm.GF=c("0.05780571", "0.05696528", "0.04452368", "0.04240527")
 names(euc.BP.lfmm.GF)=c("TWI","pHc","BIO05","AVP")
 i = data.frame(euc.BP.lfmm.GF2)
