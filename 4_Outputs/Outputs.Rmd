@@ -722,54 +722,54 @@ ggsave(file = "EI_GF_map.pdf", width = 12, height = 12, dpi = 300)
 
 ```{r Eucalyptus obliqua}
 #Transform gradient forest predictions
-euc.vars.vif <- names(importance(euc.BP.lfmm.GF.vif))
-EO.grid.pre.vif <- predict(euc.BP.lfmm.GF.vif, Env.stack.3.grid[complete.cases(Env.stack.3.grid), euc.vars.vif]) # need to get rid of NA rows or an error pops up
+euc.vars <- names(importance(euc.BP.lfmm.GF))
+EO.grid.pre <- predict(euc.BP.lfmm.GF, Env.stack.3.grid[complete.cases(Env.stack.3.grid), euc.vars]) # need to get rid of NA rows or an error pops up
 
 #PCA
-EO.PCA.vif <- prcomp(na.omit(EO.grid.pre.vif), center=TRUE, seuce.=FALSE)
-save(EO.PCA.vif, file="EO.PCA.vif.RData")
-EO.pcs.vif.full.gf.vif <- EO.PCA.vif 
-summary(EO.PCA.vif)
+EO.PCA <- prcomp(na.omit(EO.grid.pre), center=TRUE, seuce.=FALSE)
+save(EO.PCA, file="EO.PCA.RData")
+EO.pcs.full.gf <- EO.PCA 
+summary(EO.PCA)
 
 #Assign PC
-EO.a1.vif <- EO.PCA.vif$x[, 1]
-EO.a2.vif <- EO.PCA.vif$x[, 2]
-EO.a3.vif <- EO.PCA.vif$x[, 3]
+EO.a1 <- EO.PCA$x[, 1]
+EO.a2 <- EO.PCA$x[, 2]
+EO.a3 <- EO.PCA$x[, 3]
 
 #Define RGB colour palette (your choice)
-EO.r.vif <- EO.a1.vif + EO.a2.vif
-EO.g.vif <- -EO.a2.vif
-EO.b.vif <- EO.a3.vif + EO.a2.vif - EO.a1.vif
+EO.r <- EO.a1 + EO.a2
+EO.g <- -EO.a2
+EO.b <- EO.a3 + EO.a2 - EO.a1
 #Scale colours
-EO.r.vif <- (EO.r.vif - min(EO.r.vif))/(max(EO.r.vif) - min(EO.r.vif)) * 255
-EO.g.vif <- (EO.g.vif - min(EO.g.vif))/(max(EO.g.vif) - min(EO.g.vif)) * 255
-EO.b.vif <- (EO.b.vif - min(EO.b.vif))/(max(EO.b.vif) - min(EO.b.vif)) * 255
+EO.r <- (EO.r - min(EO.r))/(max(EO.r) - min(EO.r)) * 255
+EO.g <- (EO.g - min(EO.g))/(max(EO.g) - min(EO.g)) * 255
+EO.b <- (EO.b - min(EO.b))/(max(EO.b) - min(EO.b)) * 255
 
-EO.nvs.vif <- dim(EO.PCA.vif$rotation)[1]
-EO.vec.vif <- euc.vars.vif
-EO.lv.vif <- length(EO.vec.vif)
-EO.vind.vif <- rownames(EO.PCA.vif$rotation) %in% EO.vec.vif
+EO.nvs <- dim(EO.PCA$rotation)[1]
+EO.vec <- euc.vars
+EO.lv <- length(EO.vec)
+EO.vind <- rownames(EO.PCA$rotation) %in% EO.vec
 seuc <- 20
-EO.xrng.vif <- range(EO.PCA.vif$x[, 1], EO.PCA.vif$rotation[, 1]/seuc) * 1.1
-EO.yrng.vif <- range(EO.PCA.vif$x[, 2], EO.PCA.vif$rotation[, 2]/seuc) * 1.1
-EO.trns_site.vif <- predict(euc.BP.lfmm.GF.vif)
-EO.PCA.vif.sites <- predict(EO.PCA.vif, EO.trns_site.vif[, euc.vars.vif])
+EO.xrng <- range(EO.PCA$x[, 1], EO.PCA$rotation[, 1]/seuc) * 1.1
+EO.yrng <- range(EO.PCA$x[, 2], EO.PCA$rotation[, 2]/seuc) * 1.1
+EO.trns_site <- predict(euc.BP.lfmm.GF)
+EO.PCA.sites <- predict(EO.PCA, EO.trns_site[, euc.vars])
 jit <- 0.001
 
-write.csv(EO.PCA.vif.sites, file="EO.PCA.vif.sites.csv")
-EO.PCA.vif.sites_names <- read.csv("EO.PCA.vif.sites.csv") #This dataset is the same as "EO.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
+write.csv(EO.PCA.sites, file="EO.PCA.sites.csv")
+EO.PCA.sites_names <- read.csv("EO.PCA.sites.csv") #This dataset is the same as "EO.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
 
 tiff("EO_Biplot.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
-plot((EO.PCA.vif$x[, 1:2]), xlim = EO.xrng.vif, ylim = EO.yrng.vif, xlab = "PC1 (57%)", ylab = "PC2 (23%)", 
-     pch = ".", cex = 4, col = rgb(EO.r.vif, EO.g.vif, EO.b.vif, max = 255), 
+plot((EO.PCA$x[, 1:2]), xlim = EO.xrng, ylim = EO.yrng, xlab = "PC1 (57%)", ylab = "PC2 (23%)", 
+     pch = ".", cex = 4, col = rgb(EO.r, EO.g, EO.b, max = 255), 
      asp = 1, cex.lab = 1.1, cex.axis = 1, frame.plot = FALSE, axes=FALSE, col.lab="white")
 #rect(par("usr")[1], par("usr")[3],par("usr")[2], par("usr")[4])
 #par(new = TRUE)
 #abline(h = 0, v = 0, col = "grey70", lwd = 1)
 #axis(1, pos = 0, col = "grey70", labels = F, tck = 0) 
 #axis(2, pos = 0, col = "grey70", labels = F, tck = 0)
-points(EO.PCA.vif.sites_names[, 3:4],  pch = c(25,
+points(EO.PCA.sites_names[, 3:4],  pch = c(25,
                                            24,
                                            22,
                                            24,
@@ -798,24 +798,24 @@ points(EO.PCA.vif.sites_names[, 3:4],  pch = c(25,
                                            22), lwd = 0.7, cex = 1, 
        bg = NA, 
        col = "black")
-arrows(rep(0, EO.lv.vif), rep(0, EO.lv.vif), 
-       EO.PCA.vif$rotation[EO.vec.vif, 1]/seuc, 
-       EO.PCA.vif$rotation[EO.vec.vif, 2]/seuc, 
+arrows(rep(0, EO.lv), rep(0, EO.lv), 
+       EO.PCA$rotation[EO.vec, 1]/seuc, 
+       EO.PCA$rotation[EO.vec, 2]/seuc, 
        length = 0.1, lwd = 3.5, angle = 20, 
        col = "black")
-arrows(rep(0, EO.lv.vif), rep(0, EO.lv.vif), 
-       EO.PCA.vif$rotation[EO.vec.vif, 1]/seuc, 
-       EO.PCA.vif$rotation[EO.vec.vif, 2]/seuc, 
+arrows(rep(0, EO.lv), rep(0, EO.lv), 
+       EO.PCA$rotation[EO.vec, 1]/seuc, 
+       EO.PCA$rotation[EO.vec, 2]/seuc, 
        length = 0.1, lwd = 2, angle = 20, 
        col = c("#B78560","#43BA8F","#CC79A7","#B7B7B7"))
-text(EO.PCA.vif$rotation[EO.vec.vif, 1]/seuc + jit * sign(EO.PCA.vif$rotation[EO.vec.vif, 1]), 
-     EO.PCA.vif$rotation[EO.vec.vif, 2]/seuc + jit * sign(EO.PCA.vif$rotation[EO.vec.vif, 2]), 
+text(EO.PCA$rotation[EO.vec, 1]/seuc + jit * sign(EO.PCA$rotation[EO.vec, 1]), 
+     EO.PCA$rotation[EO.vec, 2]/seuc + jit * sign(EO.PCA$rotation[EO.vec, 2]), 
      labels = NULL,  cex = 0.5, pos = 2)
-#labels = EO.vec.vif,  cex = 0.5, pos = 2)
+#labels = EO.vec,  cex = 0.5, pos = 2)
 # Light gray background
-#addTextLabels(EO.PCA.vif.sites_names[, 3], 
-#EO.PCA.vif.sites_names[, 4], 
-#EO.PCA.vif.sites_names$Pop ,
+#addTextLabels(EO.PCA.sites_names[, 3], 
+#EO.PCA.sites_names[, 4], 
+#EO.PCA.sites_names$Pop ,
 #col.background=rgb(0,0,0,0.75),
 #cex.label=0.7, col.label="white")
 dev.off()
@@ -823,20 +823,20 @@ dev.off()
 #Map predicted genetic turnover in geographic space
 Env.stack.3.grid$x <- 1:nrow(Env.stack.3.grid)
 Env.stack.3.grid$nas <- complete.cases(Env.stack.3.grid)
-EO.pcs.vif <- as.data.frame(EO.PCA.vif$x)
-EO.pcs.vif$x <- Env.stack.3.grid$x[Env.stack.3.grid$nas]
-EO.pcs.vif <- merge(EO.pcs.vif, Env.stack.3.grid, by = "x", all = TRUE)
-EO.pcs.vif$r <- EO.pcs.vif$PC1 + EO.pcs.vif$PC2
-EO.pcs.vif$g <- -EO.pcs.vif$PC2
-EO.pcs.vif$b <- EO.pcs.vif$PC3 + EO.pcs.vif$PC2 - EO.pcs.vif$PC1
-EO.pcs.vif$r <- (EO.pcs.vif$r - min(EO.pcs.vif$r, na.rm = TRUE))/(max(EO.pcs.vif$r, na.rm = TRUE) - min(EO.pcs.vif$r, na.rm = TRUE)) * 255
-EO.pcs.vif$g <- (EO.pcs.vif$g - min(EO.pcs.vif$g, na.rm = TRUE))/(max(EO.pcs.vif$g, na.rm = TRUE) - min(EO.pcs.vif$g, na.rm = TRUE)) * 255
-EO.pcs.vif$b <- (EO.pcs.vif$b - min(EO.pcs.vif$b, na.rm = TRUE))/(max(EO.pcs.vif$b, na.rm = TRUE) - min(EO.pcs.vif$b, na.rm = TRUE)) * 255
-EO.raster.r.vif <- EO.raster.g.vif <- EO.raster.b.vif <- Env.stack.3[[1]]
-values(EO.raster.r.vif) <- EO.pcs.vif$r
-values(EO.raster.g.vif) <- EO.pcs.vif$g
-values(EO.raster.b.vif) <- EO.pcs.vif$b
-EO.rgbmap.vif <- stack(EO.raster.r.vif, EO.raster.g.vif, EO.raster.b.vif)
+EO.pcs <- as.data.frame(EO.PCA$x)
+EO.pcs$x <- Env.stack.3.grid$x[Env.stack.3.grid$nas]
+EO.pcs <- merge(EO.pcs, Env.stack.3.grid, by = "x", all = TRUE)
+EO.pcs$r <- EO.pcs$PC1 + EO.pcs$PC2
+EO.pcs$g <- -EO.pcs$PC2
+EO.pcs$b <- EO.pcs$PC3 + EO.pcs$PC2 - EO.pcs$PC1
+EO.pcs$r <- (EO.pcs$r - min(EO.pcs$r, na.rm = TRUE))/(max(EO.pcs$r, na.rm = TRUE) - min(EO.pcs$r, na.rm = TRUE)) * 255
+EO.pcs$g <- (EO.pcs$g - min(EO.pcs$g, na.rm = TRUE))/(max(EO.pcs$g, na.rm = TRUE) - min(EO.pcs$g, na.rm = TRUE)) * 255
+EO.pcs$b <- (EO.pcs$b - min(EO.pcs$b, na.rm = TRUE))/(max(EO.pcs$b, na.rm = TRUE) - min(EO.pcs$b, na.rm = TRUE)) * 255
+EO.raster.r <- EO.raster.g <- EO.raster.b <- Env.stack.3[[1]]
+values(EO.raster.r) <- EO.pcs$r
+values(EO.raster.g) <- EO.pcs$g
+values(EO.raster.b) <- EO.pcs$b
+EO.rgbmap <- stack(EO.raster.r, EO.raster.g, EO.raster.b)
 
 #Load sampling locations shapefile 
 EO.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EO_coords_Ch2.shp")
@@ -847,11 +847,11 @@ EO.coords.shp$Pop <- factor(
   levels = unique(EO.coords.shp$Pop))
 
 #Convert EO.rgbmap into a terra SpatRaster object
-EO.rgbmap.vif.spat <- rast(EO.rgbmap.vif)
+EO.rgbmap.spat <- rast(EO.rgbmap)
 
 #Plot
 ggplot() +
-  geom_spatraster_rgb(data = EO.rgbmap.vif.spat) +
+  geom_spatraster_rgb(data = EO.rgbmap.spat) +
   geom_sf(data = gnp, fill = NA, color = "black", size = 0.5) +  
   geom_point(data = EO.coords.shp, aes(x = lon, y = lat, shape = Pop),
              size = 10, colour = "black", fill = "white",stroke = 1.5) +
@@ -891,7 +891,7 @@ ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) 
 
-ggsave(file = "EO_GF_map_vif.pdf", width = 12, height = 12, dpi = 300)
+ggsave(file = "EO_GF_map.pdf", width = 12, height = 12, dpi = 300)
 ```
 
 ```{r Grevillea aquifolium}
