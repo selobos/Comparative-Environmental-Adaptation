@@ -130,8 +130,8 @@ most_important <- names(importance(ban.BP.lfmm.GF))
 #Overallimportance in ggplot2 
 importance(ban.BP.lfmm.GF)
 
-ban.BP.lfmm.GF2=c(0.04027141, 0.02454346, 0.02089013, 0.01774672)
-names(ban.BP.lfmm.GF2)=c("AVP","BIO05","TWI","pHc")
+ban.BP.lfmm.GF=c("0.04027141", "0.02454346", "0.02089013", "0.01774672")
+names(ban.BP.lfmm.GF)=c("AVP","BIO05","TWI","pHc")
 i = data.frame(ban.BP.lfmm.GF2)
 i$var = factor(rownames(i))
 i$type = 'BioClim'

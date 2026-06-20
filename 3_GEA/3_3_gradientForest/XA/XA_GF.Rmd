@@ -1,5 +1,5 @@
 ---
-title: "Gradient Forest - Callitris rhomboidea"
+title: "Gradient Forest - Xanthorrhoea australis"
 author: "Simon E. Lobos"
 date: "June, 20267"
 output: html_document
@@ -10,7 +10,7 @@ Import packages
 #Code adapted from: Sallé et al. (2019). https://doi.org/10.1038/s41467-019-12695-4
 #                   DeSaix et al. (2022). https://doi.org/10.1111/ddi.13628
 
-setwd("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/CR") 
+setwd("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/XA")
  
 library(dplyr)
 library(tibble)
@@ -21,12 +21,12 @@ library(ggplot2)
 
 Prepare input to make population level allele frequencies
 ```{r }
-#In an excel spreedsheet combined BayPass (CR_outliers_BF20_gm012.csv) and LFMM2 (CR_outliers_lfmm2.csv) results. Get only unique snps and save it as a txt file in the working directory (CR_outliers_BP_LF.txt).
+#In an excel spreedsheet combined BayPass (XA_outliers_BF20_gm012.csv) and LFMM2 (XA_outliers_lfmm2.csv) results. Get only unique snps and save it as a txt file in the working directory (XA_outliers_BP_LF.txt).
 
 #read genetic matrix in 012 format
-x = read.table("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/CR/Core/CR_012.txt", check.names=FALSE)
+x = read.table("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/XA/Core/XA_012.txt", check.names=FALSE)
 
-uniq_snpss = read.table("CR_outliers_BP_LF.txt")
+uniq_snpss = read.table("XA_outliers_BP_LF.txt")
 
 #remove duplicate detections, if any
 uniq_snpss <- uniq_snpss[!duplicated(uniq_snpss$V1),] 
@@ -40,7 +40,7 @@ sig_df_1 <- x_t[uniq_snpss,]; dim(sig_df_1)
 rownames(sig_df_1) <- gsub("/", "_", rownames(sig_df_1))
 rownames(sig_df_1) <- gsub("-", "_", rownames(sig_df_1))
 
-write.csv(sig_df_1, file=paste0("CR_outliers_BF_LF_gm012.csv"))
+write.csv(sig_df_1, file=paste0("XA_outliers_BF_LF_gm012.csv"))
 
 sig_df_1[1:10,1:10]
 ```
@@ -48,13 +48,13 @@ sig_df_1[1:10,1:10]
 Calculate population level allele frequencies
 ```{r }
 #Upload Env input with rows and columns names
-Env<-read.csv("~/Desktop/Comparative-Landscape-Genomics/2_Environmental_data/CR_Env_lfmm_2.csv", header=T)
+Env<-read.csv("~/Desktop/Comparative-Landscape-Genomics/2_Environmental_data/XA_Env_lfmm_2.csv", header=T)
 head(Env)
 
 #get allele frequency for each population 
 library(tidyr)
 
-cal.af <-  apply(t(sig_df_1), 2, function(snp) {
+xan.af <-  apply(t(sig_df_1), 2, function(snp) {
   split(snp, Env$pop) %>%
     sapply(function(genos) {
       n = sum(!is.na(genos)) * 2
@@ -64,11 +64,11 @@ cal.af <-  apply(t(sig_df_1), 2, function(snp) {
 })
 
 #check if there are any NAs and convert the NAs to 0
-which(apply(cal.af, 2, function(x) any(is.na(x)))) 
+which(apply(xan.af, 2, function(x) any(is.na(x)))) 
 
-cal.af <- cal.af[ , colSums(is.na(cal.af)) == 0]
+xan.af <- xan.af[ , colSums(is.na(xan.af)) == 0]
 
-write.csv(cal.af, file="cal.af.csv")
+write.csv(xan.af, file="xan.af.csv")
 ```
 
 Run Gradient Forest
@@ -78,25 +78,25 @@ agg_Env <- aggregate(. ~ pop, data = Env[,-1], FUN = mean)
 all_names <- colnames(Env)
 sel_bio <- all_names[5:8] 
 
-EnvGF.cal <- agg_Env[,sel_bio]
+EnvGF.xan <- agg_Env[,sel_bio]
 
-maxLevel <- log2(0.368*nrow(EnvGF.cal)/2) #account for correlations, see ?gradientForest 
+maxLevel <- log2(0.368*nrow(EnvGF.xan)/2) #account for correlations, see ?gradientForest 
 
-colnames(cal.af) <- paste0("V", colnames(cal.af))
+colnames(xan.af) <- paste0("V", colnames(xan.af))
 
-cal.BP.lfmm.GF <- gradientForest(cbind(EnvGF.cal, #Environmental variables
-                                cal.af), #allele freq arranged by site from Env
-                          predictor.vars=colnames(EnvGF.cal),
-                          response.vars=colnames(cal.af), 
+xan.BP.lfmm.GF <- gradientForest(cbind(EnvGF.xan, #Environmental variables
+                                xan.af), #allele freq arranged by site from Env
+                          predictor.vars=colnames(EnvGF.xan),
+                          response.vars=colnames(xan.af), 
                           ntree=500, maxLevel=maxLevel, 
                           trace=T, corr.threshold=0.50)
 
-summary(cal.BP.lfmm.GF)
+summary(xan.BP.lfmm.GF)
 ```
 
 R square (min,max,mean)
 ```{r }
-sqar <- cal.BP.lfmm.GF$imp.rsq
+sqar <- xan.BP.lfmm.GF$imp.rsq
 sqar[sqar == 0] <- NA
 sqar[1:4,1:17]
 
@@ -107,32 +107,32 @@ min(sqar,na.rm = T)
 mean(sqar,na.rm = T)
 
 #Get R2 variable importance (per Env var)
-cr.R2.imp <- as.data.frame(cal.BP.lfmm.GF$imp.rsq)
-write.table(cr.R2.imp, file="cr.R2.imp.txt", sep="\t", quote = FALSE)
+xa.R2.imp <- as.data.frame(xan.BP.lfmm.GF$imp.rsq)
+write.table(xa.R2.imp, file="xa.R2.imp.txt", sep="\t", quote = FALSE)
 
 #Get R2 per allele
-cr.R2perspp <- as.data.frame(cal.BP.lfmm.GF$result)
-write.table(cr.R2perspp, file="cr.R2perspp.txt", sep="\t", quote = FALSE)
+xa.R2perspp <- as.data.frame(xan.BP.lfmm.GF$result)
+write.table(xa.R2perspp, file="xa.R2perspp.txt", sep="\t", quote = FALSE)
 
 ## Here need to extract importance numbers to plot separately (as heatmap):
-cr.cand.imp <- as.data.frame(cal.BP.lfmm.GF$overall.imp)
-cr.cand.r2<- as.data.frame(cal.BP.lfmm.GF$overall.imp2)
+xa.cand.imp <- as.data.frame(xan.BP.lfmm.GF$overall.imp)
+xa.cand.r2<- as.data.frame(xan.BP.lfmm.GF$overall.imp2)
 ```
 
 Overall Importance of Environmental Variables plot
 ```{r }
-png("CR_overall_importance_BP_LF.png", width=1500, height=1200, res=200)
-o <- plot(cal.BP.lfmm.GF, plot.type = "O")
+png("XA_overall_importance_BP_LF.png", width=1500, height=1200, res=200)
+o <- plot(xan.BP.lfmm.GF, plot.type = "O")
 dev.off()
 
-most_important <- names(importance(cal.BP.lfmm.GF))
+most_important <- names(importance(xan.BP.lfmm.GF))
 
 #Overallimportance in ggplot2 
-importance(cal.BP.lfmm.GF)
+importance(xan.BP.lfmm.GF)
 
-cal.BP.lfmm.GF2=c("0.04113756", "0.03743316", "0.03352310", "0.02817295")
-names(cal.BP.lfmm.GF2)=c("TWI","AVP","BIO05","pHc")
-i = data.frame(cal.BP.lfmm.GF)
+xan.BP.lfmm.GF=c("0.04077184", "0.03792013", "0.03614231", "0.03609587")
+names(xan.BP.lfmm.GF)=c("TWI","BIO05","AVP","pHc")
+i = data.frame(xan.BP.lfmm.GF2)
 i$var = factor(rownames(i))
 i$type = 'BioClim'
 i$type[grep('pHc',i$var)] = 'Soil'
@@ -140,7 +140,7 @@ i$type[grep('AVP',i$var)] = 'Soil'
 i$type[grep('TWI',i$var)] = 'Hydrology'
 i$var = factor(i$var,levels=i$var[order(i[,1])])
 
-png(file='CR_overall_importance_ggplot_BP_LF.png', width=1500, height=1200, res=200)
+png(file='XA_overall_importance_ggplot_BP_LF.png', width=1500, height=1200, res=200)
 ggplot(i,aes(x=var,y=i[,1],fill = type)) +
   coord_flip() + xlab('Climatic variable') + ylab('Proportion of variance explained') +
   scale_fill_manual(values=c("#CC79A7","#7DCCFF","#43BA8F")) +
@@ -151,8 +151,8 @@ dev.off()
 
 Split importance plot
 ```{r }
-png("CR_splits_density_plot_BP_LF.png", width=1500, height=1200, res=200)
-s <- plot(cal.BP.lfmm.GF, plot.type = "S", imp.vars = most_important,
+png("XA_splits_density_plot_BP_LF.png", width=1500, height=1200, res=200)
+s <- plot(xan.BP.lfmm.GF, plot.type = "S", imp.vars = most_important,
 leg.posn = "topright", cex.legend = 0.4, cex.axis = 0.6,
 cex.lab = 0.7, line.ylab = 0.9, par.args = list(mgp = c(1.5,
 0.5, 0), mar = c(3.1, 1.5, 0.1, 1)))
@@ -161,8 +161,8 @@ dev.off()
 
 Species Cumulative importance plot
 ```{r }
-png("CR_species_cumulative_plot_BP_LF.png", width=1500, height=1200, res=200)
-c <- plot(cal.BP.lfmm.GF, plot.type = "C", imp.vars = most_important,common.scale=T,
+png("XA_species_cumulative_plot_BP_LF.png", width=1500, height=1200, res=200)
+c <- plot(xan.BP.lfmm.GF, plot.type = "C", imp.vars = most_important,common.scale=T,
 show.overall = F, legend = T, leg.posn = "topleft",
 leg.nspecies = 5, cex.lab = 0.7, cex.legend = 0.4,
 cex.axis = 0.6, line.ylab = 0.9, par.args = list(mgp = c(1.5,
@@ -173,8 +173,8 @@ dev.off()
 
 Predictor Cumulative importance plot
 ```{r }
-png("CR_predictor_cumulative_plot_BP_LF.png", width=1500, height=1200, res=200)
-plot(cal.BP.lfmm.GF, plot.type = "C", imp.vars = most_important,
+png("XA_predictor_cumulative_plot_BP_LF.png", width=1500, height=1200, res=200)
+plot(xan.BP.lfmm.GF, plot.type = "C", imp.vars = most_important,
 show.species = F, common.scale = T, cex.axis = 0.6,
 cex.lab = 0.7, line.ylab = 0.9, par.args = list(mgp = c(1.5,
 0.5, 0), mar = c(2.5, 1, 0.1, 0.5), omi = c(0,
@@ -182,22 +182,22 @@ cex.lab = 0.7, line.ylab = 0.9, par.args = list(mgp = c(1.5,
 dev.off()
 
 ##Predictor cumulative plot - ggplot
-preds <- names(cal.BP.lfmm.GF$overall.imp)
+preds <- names(xan.BP.lfmm.GF$overall.imp)
 cand.preds.list <- list()
 for(i in preds){
-  CU <- cumimp(cal.BP.lfmm.GF, i)
+  CU <- cumimp(xan.BP.lfmm.GF, i)
   cand.preds.list[[i]] <- data.frame(x = CU$x,
                                      y = CU$y,
                                      pred = i,
-                                     snps = "cr.cand")
+                                     snps = "xa.cand")
 }
-cr.cand.preds.df <- do.call(rbind, cand.preds.list)
-save(cr.cand.preds.df, file = "cr.cand.preds.df.RData")# Save object to combine cumulative importance for each spp and plot them, then go to next script: "Combined_GF_BP_LF.Rmd".
+xa.cand.preds.df <- do.call(rbind, cand.preds.list)
+save(xa.cand.preds.df, file = "xa.cand.preds.df.RData")# Save object to combine cumulative importance for each spp and plot them, then go to next script: "Combined_GF_BP_LF.Rmd".
 #cand.preds.df$type <- "mean"
 
-png("CR_predictor_cumulative_ggplot_BP_LF.png", width=1500, height=1200, res=200)
+png("XA_predictor_cumulative_ggplot_BP_LF.png", width=1500, height=1200, res=200)
 ggplot() +
-  geom_step(data=cr.cand.preds.df, aes(x=x,y=y), linewidth = 0.5) +
+  geom_step(data=xa.cand.preds.df, aes(x=x,y=y), linewidth = 0.5) +
   facet_wrap(~pred, scale=c("free")) +
   ylab("Cumulative Importance")+
   theme_light() 
@@ -206,11 +206,11 @@ dev.off()
 
 Species performance rank plot
 ```{r }
-png("CR_species_performance_rank_BP_LF.png", width=1500, height=1200, res=200)
-p <- plot(cal.BP.lfmm.GF, plot.type = "P", show.names = F, horizontal = F,
+png("XA_species_performance_rank_BP_LF.png", width=1500, height=1200, res=200)
+p <- plot(xan.BP.lfmm.GF, plot.type = "P", show.names = F, horizontal = F,
 cex.axis = 1, cex.labels = 0.7, line = 2.5)
 dev.off()
 
-save(cal.BP.lfmm.GF, file = "CR_GF.RData")
+save(xan.BP.lfmm.GF, file = "XA_GF.RData")
 ```
 
