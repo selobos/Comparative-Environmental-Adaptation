@@ -10,7 +10,7 @@ Import packages
 #Code adapted from: Sallé et al. (2019). https://doi.org/10.1038/s41467-019-12695-4
 #                   DeSaix et al. (2022). https://doi.org/10.1111/ddi.13628
 
-setwd("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM")
+setwd("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/BM")
  
 library(dplyr)
 library(tibble)
@@ -24,18 +24,18 @@ Prepare input to make population level allele frequencies
 #In an excel spreedsheet combined BayPass (BM_outliers_BF20_gm012.csv) and LFMM2 (BM_outliers_lfmm2.csv) results. Get only unique snps and save it as a txt file in the working directory (BM_outliers_BP_LF.txt).
 
 #read genetic matrix in 012 format
-x = read.table("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/3_1_1_BM/3_1_1_1_Core/BM_012.txt", check.names=FALSE)
+x = read.table("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/BM/Core/BM_012.txt", check.names=FALSE)
 
 uniq_snpss = read.table("BM_outliers_BP_LF.txt")
 
 #remove duplicate detections, if any
-uniq_snpss <- uniq_snpss[!duplicated(uniq_snpss$V1),] #NA
+uniq_snpss <- uniq_snpss[!duplicated(uniq_snpss$V1),] 
 
-x_t <- data.frame(t(x)); dim(x_t) #2521(snps)   145(ind)
+x_t <- data.frame(t(x)); dim(x_t)
 
-#x_t <- data.frame(x_t, row.names = paste0(1:2521)); dim(x_t) #2521(snps)   145(ind)
+#x_t <- data.frame(x_t, row.names = paste0(1:2521)); dim(x_t)
 
-sig_df_1 <- x_t[uniq_snpss,]; dim(sig_df_1) #30(snps)   145(ind)
+sig_df_1 <- x_t[uniq_snpss,]; dim(sig_df_1)
 
 rownames(sig_df_1) <- gsub("/", "_", rownames(sig_df_1))
 rownames(sig_df_1) <- gsub("-", "_", rownames(sig_df_1))
@@ -65,8 +65,7 @@ ban.af <-  apply(t(sig_df_1), 2, function(snp) {
 
 #check if there are any NAs and convert the NAs to 0
 which(apply(ban.af, 2, function(x) any(is.na(x)))) 
-#36107330-57-C.T 
-#             27 
+
 ban.af <- ban.af[ , colSums(is.na(ban.af)) == 0]
 
 write.csv(ban.af, file="ban.af.csv")
@@ -92,24 +91,7 @@ ban.BP.lfmm.GF <- gradientForest(cbind(EnvGF.ban, #Environmental variables
                           ntree=500, maxLevel=maxLevel, 
                           trace=T, corr.threshold=0.50)
 
-#..Warning in randomForest.default(x = X, y = spec_vec, maxLevel = maxLevel,  :
-#  The response has five or fewer unique values.  Are you sure you want to do regression?
-
 summary(ban.BP.lfmm.GF)
-#                Length Class      Mode     
-#X                4     data.frame list     
-#Y               29     data.frame list     
-#result          17     -none-     numeric  
-#overall.imp      4     -none-     numeric  
-#overall.imp2     4     -none-     numeric  
-#ntree            1     -none-     numeric  
-#imp.rsq         68     -none-     numeric  
-#species.pos.rsq  1     -none-     numeric  
-#ranForest.type   1     -none-     character
-#res              9     data.frame list     
-#res.u            6     data.frame list     
-#dens             4     -none-     list     
-#call             8     -none-     call  
 ```
 
 R square (min,max,mean)
@@ -119,13 +101,10 @@ sqar[sqar == 0] <- NA
 sqar[1:4,1:17]
 
 max(sqar,na.rm = T)
-#0.1530844
 
 min(sqar,na.rm = T)
-#0.0002252271
 
 mean(sqar,na.rm = T)
-#0.03823216
 
 #Get R2 variable importance (per Env var)
 bm.R2.imp <- as.data.frame(ban.BP.lfmm.GF$imp.rsq)
@@ -150,9 +129,6 @@ most_important <- names(importance(ban.BP.lfmm.GF))
 
 #Overallimportance in ggplot2 
 importance(ban.BP.lfmm.GF)
-
-#       AVP      BIO05        TWI        pHc 
-#0.04027141 0.02454346 0.02089013 0.01774672 
 
 ban.BP.lfmm.GF2=c(0.04027141, 0.02454346, 0.02089013, 0.01774672)
 names(ban.BP.lfmm.GF2)=c("AVP","BIO05","TWI","pHc")
@@ -181,9 +157,6 @@ leg.posn = "topright", cex.legend = 0.4, cex.axis = 0.6,
 cex.lab = 0.7, line.ylab = 0.9, par.args = list(mgp = c(1.5,
 0.5, 0), mar = c(3.1, 1.5, 0.1, 1)))
 dev.off()
-
-#Warning in density.default(splits, weight = w/sum(w), from = rX[1], to = rX[2]) :
-#  Selecting bandwidth *not* using 'weights'
 ```
 
 Species Cumulative importance plot
