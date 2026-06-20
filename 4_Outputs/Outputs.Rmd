@@ -38,12 +38,12 @@ Outcomes of gradient forest models (Figure 2A)
 #Create a relative importance heatmap for each environmental predictor variable for each species.
 
 #Load gradientForest results
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM/BM_GF_BP_LF.RData") #B. marginata
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_CR/CR_GF_BP_LF.RData") #C. rhomboidea  
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EI/EI_GF_BP_LF.RData") #E. impressa
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EO/EO_GF_BP_LF.RData") #E. obliqua
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_GA/GA_GF_BP_LF.RData") #G. aquifolium
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_XA/XA_GF_BP_LF.RData") #X. australis
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM/BM_GF.RData") #B. marginata
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_CR/CR_GF.RData") #C. rhomboidea  
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EI/EI_GF.RData") #E. impressa
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EO/EO_GF.RData") #E. obliqua
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_GA/GA_GF.RData") #G. aquifolium
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_XA/XA_GF.RData") #X. australis
 
 #Retrieve R2 importance values of the evn. predictors 
 R.sq.alldatasets <- (rowMeans(ban.BP.lfmm.GF$imp.rsq, na.rm=T)) 
@@ -295,9 +295,6 @@ values(BM.raster.g) <- BM.pcs$g
 values(BM.raster.b) <- BM.pcs$b
 BM.rgbmap <- stack(BM.raster.r, BM.raster.g, BM.raster.b)
 
-#Load coordinates
-BM.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/BM_coords_Ch2.csv")
-
 #Load sampling locations shapefile 
 BM.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/BM_coords_Ch2.shp")
 
@@ -492,9 +489,6 @@ values(CR.raster.g) <- CR.pcs$g
 values(CR.raster.b) <- CR.pcs$b
 CR.rgbmap <- stack(CR.raster.r, CR.raster.g, CR.raster.b)
 
-#Load coordinates
-CR.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/CR_coords_Ch2.csv")
-
 #Load sampling locations shapefile 
 CR.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/CR_coords_Ch2.shp")
 
@@ -670,9 +664,6 @@ values(EI.raster.g) <- EI.pcs$g
 values(EI.raster.b) <- EI.pcs$b
 EI.rgbmap <- stack(EI.raster.r, EI.raster.g, EI.raster.b)
 
-#Load coordinates
-EI.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EI_coords_Ch2.csv")
-
 #Load sampling locations shapefile 
 EI.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EI_coords_Ch2.shp")
 
@@ -846,9 +837,6 @@ values(EO.raster.r.vif) <- EO.pcs.vif$r
 values(EO.raster.g.vif) <- EO.pcs.vif$g
 values(EO.raster.b.vif) <- EO.pcs.vif$b
 EO.rgbmap.vif <- stack(EO.raster.r.vif, EO.raster.g.vif, EO.raster.b.vif)
-
-#Load coordinates
-EO.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EO_coords_Ch2.csv")
 
 #Load sampling locations shapefile 
 EO.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/EO_coords_Ch2.shp")
@@ -1025,9 +1013,6 @@ values(GA.raster.r) <- GA.pcs$r
 values(GA.raster.g) <- GA.pcs$g
 values(GA.raster.b) <- GA.pcs$b
 GA.rgbmap <- stack(GA.raster.r, GA.raster.g, GA.raster.b)
-
-#Load coordinates
-GA.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/GA_coords_Ch2.csv")
 
 #Load sampling locations shapefile 
 GA.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/GA_coords_Ch2.shp")
@@ -1208,9 +1193,6 @@ values(XA.raster.r) <- XA.pcs$r
 values(XA.raster.g) <- XA.pcs$g
 values(XA.raster.b) <- XA.pcs$b
 XA.rgbmap <- stack(XA.raster.r, XA.raster.g, XA.raster.b)
-
-#Load coordinates
-XA.coords <- read.csv("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/XA_coords_Ch2.csv")
 
 #Load sampling locations shapefile 
 XA.coords.shp=st_read("~/Desktop/Comparative-Landscape-Genomics/Environmental_data/XA_coords_Ch2.shp")
