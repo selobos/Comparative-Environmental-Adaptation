@@ -23,9 +23,14 @@ Polygon <- readOGR(dsn =  paste0("Polygon_GNP.shp"), stringsAsFactors = F) #Stud
 gnp <- readOGR(dsn =  paste0("Grampians_Wh_2.shp"), stringsAsFactors = F) #Gariwerd/Grampians National Park boundary
 
 #load the seven environmental raster layers for GEA analyses
+#CSIRO Data Access Portal
 TWI <- raster("TWI.tif")
+
+#TERN Soil and Landscape Grid of Australia database
 AVP <- raster("AVP.tif") 
 pHc <- raster("pHc.tif") 
+
+#WorldClim v.2.06
 BIO01 <- raster("BIO01.tif")
 BIO05 <- raster("BIO05.tif")
 BIO12 <- raster("BIO12.tif")
