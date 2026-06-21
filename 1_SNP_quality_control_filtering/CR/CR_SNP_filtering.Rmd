@@ -1,0 +1,138 @@
+---
+title: "SNP Quality Control Filtering - Callitris rhomboidea"
+author: "Simon E. Lobos"
+date: "June, 20267"
+output: html_document
+---
+
+Import packages
+```{r include = TRUE, message=FALSE, eval = FALSE}
+library(dartR)
+library(ggplot2)
+library(adegenet)
+library(ape)
+```
+
+Import data
+```{r}
+#Set working directory 
+setwd("~/Desktop/Comparative-Landscape-Genomics/1_SNP_quality_control_filtering/CR")  
+
+#Import the DArT genotype CSV file and the complementary CSV file containing sample metadata.
+gl <- gl.read.dart(filename = "Report_DCals21-6653_SNP_2.csv", ind.metafile = "CR_metadata.csv")
+
+#Print details
+gl
+
+#Check the order of individual names. If individuals are not sorted alphabetically, proceed to the next step.
+indNames(gl)
+
+#Sort all individuals by population in alphabetical order
+gl <- gl[order(pop(gl)), ]
+
+#Verify the new ordering of individuals
+indNames(gl)
+```
+
+Check for potential clone mates
+```{r }
+#Method 1 - calculating the proportion of shared alleles
+clones <- gl.propShared(gl)
+
+#Convert matrix into data frame 
+clones_temp <- as.data.frame(as.table(as.matrix(clones)))
+write.csv(clones_temp, file = "CR_clones.csv")
+
+#Method 2 - Neighbour-joining tree
+NJ <- dist(tab(gl))
+tree <- nj(NJ)
+plot(tree, cex=0.5)
+
+#Export tree into Nexus format for visualisation in FigTree
+write.nexus(trec, file = "CR_clones_NJ.nex") 
+```
+
+Remove potential clones
+```{r}
+gla <- gl.drop.ind(gl, ind.list=c("CR_27A_5A","CR_45_2B","CR_52_6B","CR_76A_2B",
+                                  "CR_93A_5B","CR_97_6B","CR_107C_4A","CR_MountWE_1B")) 
+
+#Print details
+gla
+```
+
+Reports on minor allele frequencies (maf) overall, and by population
+```{r }
+pdf("CR_maf_gla.pdf", height=20, width=20)
+gl.report.maf(gla)
+dev.off()
+```
+
+Filters loci by maf
+```{r }
+pdf("CR_maf_glb.pdf")
+glb <- gl.filter.maf(gla, threshold = 0.02)
+dev.off()
+
+#Print details
+glb
+```
+
+Report Call Rates/ Missing Data - loci
+```{r }
+pdf("CR_report_callrate_loc_glb.pdf")
+gl.report.callrate(glb, method='loc')
+dev.off()
+```
+
+Report Call Rates/ Missing Data - individuals
+```{r }
+pdf("CR_report_callrate_ind_glb.pdf")
+gl.report.callrate(glb, method='ind')
+dev.off()
+```
+
+Calculate call rate for each locus
+```{r }
+pdf("CR_callrate_loc_glc.pdf")
+glc <- gl.filter.callrate(glb, method="loc", threshold=0.8)
+dev.off()
+
+#Print details
+glc
+```
+
+Calculate call rate for each individual
+```{r }
+pdf("CR_callrate_ind_gld.pdf")
+gld <- gl.filter.callrate(glc, method="ind", threshold=0.8)
+dev.off()
+
+#Print details
+gld
+```
+
+Discard loci that might be possible paralogues (hamming distance)
+```{r }
+pdf("CR_paralogues_gle.pdf")
+gle <- gl.filter.hamming(gld, threshold=0.2)
+dev.off()
+ 
+#Print details
+gle
+
+save(gle, file="CR_gle.rdata")
+```
+
+Compare smear plots between the original and filtered datasets
+```{r }
+pdf("CR_original_dataset_gl.pdf")
+plot(gl) 
+dev.off() 
+
+pdf("CR_filtered_dataset_gle.pdf")
+plot(gle)
+dev.off()
+```
+
+
