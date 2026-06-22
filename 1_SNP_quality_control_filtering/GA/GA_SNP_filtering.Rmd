@@ -22,7 +22,7 @@ setwd("~/Desktop/Comparative-Landscape-Genomics/1_SNP_quality_control_filtering/
 gl <- gl.read.dart(filename = "Report_DGr22-6726_SNP_2.csv", ind.metafile = "GA_metadata.csv")
 
 #Print details
-gl
+gl 
 
 #Check the order of individual names. If individuals are not sorted alphabetically, proceed to the next step.
 indNames(gl)

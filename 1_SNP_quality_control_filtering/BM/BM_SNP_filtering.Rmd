@@ -120,7 +120,7 @@ Discard loci that might be possible paralogues (hamming distance)
 pdf("BM_paralogues_gle.pdf")
 gle <- gl.filter.hamming(gld, threshold=0.2)
 dev.off()
- 
+  
 #Print details
 gle
 

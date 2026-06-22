@@ -68,7 +68,7 @@ gla <- gl.drop.ind(gl, ind.list=c("EO_8_2B","EO_27A_1A","EO_27A_1B","EO_52_6B","
                                   "EO_100A_3","EO_104_4","EO_45_1","EO_45_3","EO_95_6",
                                   "EO_AOS03B_2","EO_8_5","EO_15_5","EO_49AB_4","EO_69A_5",
                                   "EO_98B_3")) 
-
+ 
 #Print details
 gla
 ```

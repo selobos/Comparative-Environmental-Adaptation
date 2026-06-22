@@ -9,7 +9,7 @@ Import packages
 ```{r include = TRUE, message=FALSE, eval = FALSE}
 library(dartR)
 library(ggplot2)
-library(adegenet)
+library(adegenet) 
 library(ape)
 ```
 
