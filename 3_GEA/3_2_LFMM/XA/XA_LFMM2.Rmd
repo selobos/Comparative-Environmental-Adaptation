@@ -161,7 +161,7 @@ head(all.pv)
 colnames(all.pv) <- c("TWI","AVP","pHc","BIO01","BIO05","BIO12","BIO14")
 
 #include name of the snps
-ind_snp <- read.csv("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/XA/Core/XA_loc.names.csv")[-1]
+ind_snp <- read.csv("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/XA/XA_loc.names.csv")[-1]
 
 #rename the column
 colnames(ind_snp) <- "ind_snp"
