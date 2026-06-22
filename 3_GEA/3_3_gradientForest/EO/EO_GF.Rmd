@@ -24,7 +24,7 @@ Prepare input to make population level allele frequencies
 #In an excel spreedsheet combined BayPass (EO_outliers_BF20_gm012.csv) and LFMM2 (EO_outliers_lfmm2.csv) results. Get only unique snps and save it as a txt file in the working directory (EO_outliers_BP_LF.txt).
 
 #read genetic matrix in 012 format
-x = read.table("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/EO/Core/EO_012.txt", check.names=FALSE)
+x = read.table("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_1_BayPass/EO/EO_012.txt", check.names=FALSE)
 
 uniq_snpss = read.table("EO_outliers_BP_LF.txt")
 
