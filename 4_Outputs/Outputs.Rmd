@@ -29,8 +29,8 @@ library(shadowtext)
 library(forcats)
 library(terra)
 library(tidyterra)  
-library(tidyterra)
 library(ggrepel)
+library(ggpmisc)
 ```
 
 Outcomes of gradient forest models (Figure 2A)
@@ -38,12 +38,12 @@ Outcomes of gradient forest models (Figure 2A)
 #Create a relative importance heatmap for each environmental predictor variable for each species.
 
 #Load gradientForest results
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM/BM_GF.RData") #B. marginata
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_CR/CR_GF.RData") #C. rhomboidea  
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EI/EI_GF.RData") #E. impressa
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EO/EO_GF.RData") #E. obliqua
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_GA/GA_GF.RData") #G. aquifolium
-load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_XA/XA_GF.RData") #X. australis
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/BM/BM_GF.RData") #B. marginata
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/CR/CR_GF.RData") #C. rhomboidea  
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/EI/EI_GF.RData") #E. impressa
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/EO/EO_GF.RData") #E. obliqua
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/GA/GA_GF.RData") #G. aquifolium
+load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/XA/XA_GF.RData") #X. australis
 
 #Retrieve R2 importance values of the evn. predictors 
 R.sq.alldatasets <- (rowMeans(ban.BP.lfmm.GF$imp.rsq, na.rm=T)) 
@@ -115,12 +115,12 @@ ggsave("Heatmap.GF.R2.spp_Rvalues.pdf", width = 6.5, height = 6.5, dpi = 300)
 Outcomes of gradient forest models (Figure 2B)
 ```{r }
 #load GF cumulative importance dfs of each species 
-ban.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_BM/bm.cand.preds.df.RData") 
-cal.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_CR/cr.cand.preds.df.RData") 
-epa.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EI/ei.cand.preds.df.RData") 
-euc.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_EO/eo.cand.preds.df.RData") 
-gre.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_GA/ga.cand.preds.df.RData") 
-xan.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/3_3_1_XA/xa.cand.preds.df.RData") 
+ban.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/BM/bm.cand.preds.df.RData") 
+cal.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/CR/cr.cand.preds.df.RData") 
+epa.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/EI/ei.cand.preds.df.RData") 
+euc.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/EO/eo.cand.preds.df.RData") 
+gre.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/GA/ga.cand.preds.df.RData") 
+xan.cand.preds <- load("~/Desktop/Comparative-Landscape-Genomics/3_GEA/3_3_gradientForest/XA/xa.cand.preds.df.RData") 
 
 all.cand.preds <- rbind(bm.cand.preds.df, cr.cand.preds.df, ei.cand.preds.df, 
                         eo.cand.preds.df, ga.cand.preds.df, xa.cand.preds.df) %>%
@@ -212,7 +212,7 @@ BM.PCA.sites <- predict(BM.PCA, BM.trns_site[, ban.vars])
 jit <- 0.001
 
 write.csv(BM.PCA.sites, file="BM.PCA.sites.csv")
-BM.PCA.sites_names <- read.csv("BM.PCA.sites.csv") # This dataset is the same as "BM.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers.
+BM.PCA.sites_names <- read.csv("BM.PCA.sites.csv") # This dataset is the same as "BM.PCA.sites" but includes an additional column with updated population names. The population names were simplified by replacing long labels with numerical identifiers (See Table S2).
 
 tiff("BM_Biplot.tiff", width=1500, height=1300, res=300)
 par(mar = c(2, 2, 0.2, 0.5), mgp = c(0, 0, 0)) 
