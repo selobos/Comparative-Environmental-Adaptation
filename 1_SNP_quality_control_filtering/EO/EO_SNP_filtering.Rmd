@@ -19,7 +19,7 @@ Import data
 setwd("~/Desktop/Comparative-Landscape-Genomics/1_SNP_quality_control_filtering/EO")  
 
 #Import the DArT genotype CSV file and the complementary CSV file containing sample metadata.
-gl <- gl.read.dart(filename = "Report_DBank22-6724_SNP_2.csv", ind.metafile = "EO_metadata.csv")
+gl <- gl.read.dart(filename = "Report_DE22-6739_SNP_2.csv", ind.metafile = "EO_metadata.csv")
 
 #Print details
 gl
